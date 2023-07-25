@@ -26,6 +26,7 @@ class Section:
         catedra: defaultdict,
         ayudantia: defaultdict,
         lab: defaultdict,
+        taller: defaultdict,
     ):
         self.nrc = nrc
         self.section = section
@@ -34,11 +35,12 @@ class Section:
         self.catedra = dict(catedra)
         self.ayudantia = dict(ayudantia)
         self.lab = lab
+        self.taller = taller
 
 
 class GroupedSection:
     def __init__(
-        self, id, name, catedra: defaultdict, ayudantia: defaultdict, lab: defaultdict
+        self, id, name, catedra: defaultdict, ayudantia: defaultdict, lab: defaultdict, taller: defaultdict
     ) -> None:
         self.id = id
         self.name = name
@@ -48,6 +50,7 @@ class GroupedSection:
         self.catedra = dict(catedra)
         self.ayudantia = dict(ayudantia)
         self.lab = lab
+        self.taller = dict(taller)
 
 
 class Logic(QObject):
@@ -98,6 +101,7 @@ class Logic(QObject):
             catedra = defaultdict(list)
             ayudantia = defaultdict(list)
             lab = defaultdict(list)
+            taller = defaultdict(list)
             for schedule in schedules:
                 schedule_cells = schedule.find_all("td")
                 tipo = schedule_cells[1].text.strip()
@@ -111,6 +115,11 @@ class Logic(QObject):
                         lab[dia].extend(modulos)
                     elif tipo == p.AYUDANTIA:
                         ayudantia[dia].extend(modulos)
+                    elif tipo == p.TALLER:
+                        taller[dia].extend(modulos)
+                    else:
+                        print(course_id)
+                        print(tipo)
             course.sections.append(
                 Section(
                     nrc,
@@ -120,6 +129,7 @@ class Logic(QObject):
                     catedra.copy(),
                     ayudantia.copy(),
                     lab.copy(),
+                    taller
                 )
             )
         return course
@@ -135,9 +145,9 @@ class Logic(QObject):
 
         final_list = []
         for key, courses in groupby(
-            course.sections, key=attrgetter("catedra", "ayudantia", "lab")
+            course.sections, key=attrgetter("catedra", "ayudantia", "lab", "taller")
         ):
-            grouped_section = GroupedSection(course.id, course.sections[0].name, key[0], key[1], key[2])
+            grouped_section = GroupedSection(course.id, course.sections[0].name, key[0], key[1], key[2], key[3])
             for section in courses:
                 grouped_section.nrcs.append(section.nrc)
                 grouped_section.sections.append(section.section)
@@ -156,6 +166,11 @@ class Logic(QObject):
                         return False
                     else:
                         schedule_per_day[key].extend(value.copy())
+        for i, course in enumerate(combination):  # Catedra con taller
+            for key, modules in course.catedra.items():
+                for j, other_course in enumerate(combination):
+                    if i != j and key in other_course.taller and any(val in other_course.taller[key] for val in modules):
+                        return False
         if not self.tope_lab:
             for i, course in enumerate(combination):  # Catedra con lab
                 for key, modules in course.catedra.items():
@@ -241,6 +256,7 @@ class Logic(QObject):
             catedra = defaultdict(list)
             ayudantia = defaultdict(list)
             lab = defaultdict(list)
+            taller = defaultdict(list)
             for schedule in schedules:
                 schedule_cells = schedule.find_all("td")
                 tipo = schedule_cells[1].text.strip()
@@ -254,6 +270,11 @@ class Logic(QObject):
                         lab[dia].extend(modulos)
                     elif tipo == p.AYUDANTIA:
                         ayudantia[dia].extend(modulos)
+                    elif tipo == p.TALLER:
+                        taller[dia].extend(modulos)
+                    else:
+                        print(sigla)
+                        print(tipo)
             final_section = Section(
                     nrc,
                     section,
@@ -262,6 +283,7 @@ class Logic(QObject):
                     catedra.copy(),
                     ayudantia.copy(),
                     lab.copy(),
+                    taller.copy()
                 )
             if sigla not in self.ofgs:
                 self.ofgs[sigla] = Course(sigla)

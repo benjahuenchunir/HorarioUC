@@ -146,31 +146,20 @@ class ScheduleWindow(QWidget):
         self.btn_previous.clicked.connect(self.decrease_current_index)
         btn_ofgs.clicked.connect(self.enviar_buscar_ofgs)
 
-    def addItem(self, course):
-        for dia, modulos in course.catedra.items():
-            for modulo in modulos:
-                modulo -= 1
-                if self.tb_schedule.cellWidget(modulo, p.DIAS[dia]):
-                    self.tb_schedule.cellWidget(modulo, p.DIAS[dia]).addLabel(f"{course.id}-{','.join(course.sections)}", p.COLORES[p.CATEDRA])
-                else:
-                    item = DoubleLineWidget(f"{course.id}-{','.join(course.sections)}", p.COLORES[p.CATEDRA])
-                    self.tb_schedule.setCellWidget(modulo, p.DIAS[dia], item)
+    def add_course_schedule(self, course):
+        self.add_item(course.id, course.sections, course.catedra.items(), p.COLORES[p.CATEDRA])
+        self.add_item(course.id, course.sections, course.ayudantia.items(), p.COLORES[p.AYUDANTIA])
+        self.add_item(course.id, course.sections, course.lab.items(), p.COLORES[p.LAB])
+        self.add_item(course.id, course.sections, course.taller.items(), p.COLORES[p.TALLER])
 
-        for dia, modulos in course.lab.items():
+    def add_item(self, course_id, sections, items, color):
+        for dia, modulos in items:
             for modulo in modulos:
                 modulo -= 1
                 if self.tb_schedule.cellWidget(modulo, p.DIAS[dia]):
-                    self.tb_schedule.cellWidget(modulo, p.DIAS[dia]).addLabel(f"{course.id}-{','.join(course.sections)}", p.COLORES[p.LAB])
+                    self.tb_schedule.cellWidget(modulo, p.DIAS[dia]).addLabel(f"{course_id}-{','.join(sections)}", color)
                 else:
-                    item = DoubleLineWidget(f"{course.id}-{','.join(course.sections)}", p.COLORES[p.LAB])
-                    self.tb_schedule.setCellWidget(modulo, p.DIAS[dia], item)
-        for dia, modulos in course.ayudantia.items():
-            for modulo in modulos:
-                modulo -= 1
-                if self.tb_schedule.cellWidget(modulo, p.DIAS[dia]):
-                    self.tb_schedule.cellWidget(modulo, p.DIAS[dia]).addLabel(f"{course.id}-{','.join(course.sections)}", p.COLORES[p.AYUDANTIA])
-                else:
-                    item = DoubleLineWidget(f"{course.id}-{','.join(course.sections)}", p.COLORES[p.AYUDANTIA])
+                    item = DoubleLineWidget(f"{course_id}-{','.join(sections)}", color)
                     self.tb_schedule.setCellWidget(modulo, p.DIAS[dia], item)
 
     def increase_current_index(self):
@@ -193,7 +182,7 @@ class ScheduleWindow(QWidget):
         self.list_current_courses.clear()
         self.tb_schedule.clearContents()
         for course in self.course_list[self.current_course_index]:
-            self.addItem(course)
+            self.add_course_schedule(course)
             item = QListWidgetItem()
             item.setSizeHint(QSize(100, 80))
             self.list_current_courses.addItem(item)
@@ -293,34 +282,22 @@ class OFGWindow(QWidget):
         self.list_current_courses.clear()
         self.tb_schedule.clearContents()
         self.qcb_ofg_areas.setCurrentIndex(0)
-        self.show()
-        
-    
-    def addItem(self, course):
-        for dia, modulos in course.catedra.items():
-            for modulo in modulos:
-                modulo -= 1
-                if self.tb_schedule.cellWidget(modulo, p.DIAS[dia]):
-                    self.tb_schedule.cellWidget(modulo, p.DIAS[dia]).addLabel(f"{course.id}-{','.join(course.sections)}", p.COLORES[p.CATEDRA])
-                else:
-                    item = DoubleLineWidget(f"{course.id}-{','.join(course.sections)}", p.COLORES[p.CATEDRA])
-                    self.tb_schedule.setCellWidget(modulo, p.DIAS[dia], item)
+        self.show()  
 
-        for dia, modulos in course.lab.items():
+    def add_course_schedule(self, course):
+        self.add_item(course.id, course.sections, course.catedra.items(), p.COLORES[p.CATEDRA])
+        self.add_item(course.id, course.sections, course.ayudantia.items(), p.COLORES[p.AYUDANTIA])
+        self.add_item(course.id, course.sections, course.lab.items(), p.COLORES[p.LAB])
+        self.add_item(course.id, course.sections, course.taller.items(), p.COLORES[p.TALLER])
+
+    def add_item(self, course_id, sections, items, color):
+        for dia, modulos in items:
             for modulo in modulos:
                 modulo -= 1
                 if self.tb_schedule.cellWidget(modulo, p.DIAS[dia]):
-                    self.tb_schedule.cellWidget(modulo, p.DIAS[dia]).addLabel(f"{course.id}-{','.join(course.sections)}", p.COLORES[p.LAB])
+                    self.tb_schedule.cellWidget(modulo, p.DIAS[dia]).addLabel(f"{course_id}-{','.join(sections)}", color)
                 else:
-                    item = DoubleLineWidget(f"{course.id}-{','.join(course.sections)}", p.COLORES[p.LAB])
-                    self.tb_schedule.setCellWidget(modulo, p.DIAS[dia], item)
-        for dia, modulos in course.ayudantia.items():
-            for modulo in modulos:
-                modulo -= 1
-                if self.tb_schedule.cellWidget(modulo, p.DIAS[dia]):
-                    self.tb_schedule.cellWidget(modulo, p.DIAS[dia]).addLabel(f"{course.id}-{','.join(course.sections)}", p.COLORES[p.AYUDANTIA])
-                else:
-                    item = DoubleLineWidget(f"{course.id}-{','.join(course.sections)}", p.COLORES[p.AYUDANTIA])
+                    item = DoubleLineWidget(f"{course_id}-{','.join(sections)}", color)
                     self.tb_schedule.setCellWidget(modulo, p.DIAS[dia], item)
 
     def increase_current_index(self):
@@ -343,7 +320,7 @@ class OFGWindow(QWidget):
         id_, combinacion = self.course_list[self.current_course_index]
         self.lbl_current_ofg.setText(id_)
         for course in combinacion[0]:
-            self.addItem(course)
+            self.add_course_schedule(course)
             item = QListWidgetItem()
             item.setSizeHint(QSize(100, 80))
             self.list_current_courses.addItem(item)
