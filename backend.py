@@ -69,7 +69,8 @@ class Logic(QObject):
         self.current_combination = []
 
     def find_course_info(self, course_id):
-        course = self.scrape_course_schedule(course_id)
+        url = f"https://buscacursos.uc.cl/?cxml_semestre=2023-2&cxml_sigla={course_id}&cxml_nrc=&cxml_nombre=&cxml_categoria=TODOS&cxml_area_fg=TODOS&cxml_formato_cur=TODOS&cxml_profesor=&cxml_campus=TODOS&cxml_unidad_academica=TODOS&cxml_horario_tipo_busqueda=si_tenga&cxml_horario_tipo_busqueda_actividad=TODOS#resultados"
+        course = list(self.parse_url(url).values())[0]
         grouped_sections = self.group_courses_by_dict(course)
         self.courses[course_id] = grouped_sections
         self.sections[course_id] = p.TODAS
@@ -77,62 +78,7 @@ class Logic(QObject):
         self.update_schedule()
 
     def update_schedule(self):
-        self.senal_update_schedule.emit(self.generate_course_combinations(self.courses.values()))
-
-    def scrape_course_schedule(self, course_id):
-        course = Course(course_id)
-        url = f"https://buscacursos.uc.cl/?cxml_semestre=2023-2&cxml_sigla={course_id}&cxml_nrc=&cxml_nombre=&cxml_categoria=TODOS&cxml_area_fg=TODOS&cxml_formato_cur=TODOS&cxml_profesor=&cxml_campus=TODOS&cxml_unidad_academica=TODOS&cxml_horario_tipo_busqueda=si_tenga&cxml_horario_tipo_busqueda_actividad=TODOS#resultados"
-        response = requests.get(url)
-        soup = BeautifulSoup(response.text, "html.parser")
-
-        table = soup.find(
-            "table",
-            attrs={"width": "100%", "cellpadding": "3", "cellspacing": "1", "border": "0"},
-        )
-        rows = table.find_all("tr", class_=["resultadosRowImpar", "resultadosRowPar"])
-
-        for row in rows:
-            cells = row.find_all("td")
-            nrc = cells[0].text.strip()
-            section = cells[4].text.strip()
-            name = cells[9].text.strip()
-            teacher = cells[10].text.strip()
-            schedules = cells[16].table.find_all("tr")
-            catedra = defaultdict(list)
-            ayudantia = defaultdict(list)
-            lab = defaultdict(list)
-            taller = defaultdict(list)
-            for schedule in schedules:
-                schedule_cells = schedule.find_all("td")
-                tipo = schedule_cells[1].text.strip()
-                horario = schedule_cells[0].text.strip()
-                dias, modulos_ = horario.split(":")
-                for dia in dias.split("-"):
-                    modulos = map(int, modulos_.split(","))
-                    if tipo == p.CATEDRA:
-                        catedra[dia].extend(modulos)
-                    elif tipo == p.LAB:
-                        lab[dia].extend(modulos)
-                    elif tipo == p.AYUDANTIA:
-                        ayudantia[dia].extend(modulos)
-                    elif tipo == p.TALLER:
-                        taller[dia].extend(modulos)
-                    else:
-                        print(course_id)
-                        print(tipo)
-            course.sections.append(
-                Section(
-                    nrc,
-                    section,
-                    name,
-                    teacher,
-                    catedra.copy(),
-                    ayudantia.copy(),
-                    lab.copy(),
-                    taller
-                )
-            )
-        return course
+        self.senal_update_schedule.emit(self.generate_course_combinations(self.courses.values()))        
 
     def section_key(self, section):
         catedra = tuple(sorted(section.catedra.items()))
@@ -223,8 +169,10 @@ class Logic(QObject):
 
     def change_ofg_area(self, area):
         combinaciones_final = []
-        self.search_ofgs(area)
-        for key, course in self.ofgs.items():
+        url = f"https://buscacursos.uc.cl/?cxml_semestre=2023-2&cxml_sigla=&cxml_nrc=&cxml_nombre=&cxml_categoria=TODOS&cxml_area_fg={p.OFG[area]}&cxml_formato_cur=TODOS&cxml_profesor=&cxml_campus=TODOS&cxml_unidad_academica=TODOS&cxml_horario_tipo_busqueda=si_tenga&cxml_horario_tipo_busqueda_actividad=TODOS#resultados"
+        courses = self.parse_url(url)
+        self.ofgs.clear()
+        for key, course in courses.items():
             self.ofgs[key] = self.group_courses_by_dict(course)
         for id, grouped_sections in self.ofgs.items():
             combinations = self.generate_course_combinations(self.current_combination + [grouped_sections])
@@ -232,13 +180,10 @@ class Logic(QObject):
                 combinaciones_final.append((id, combinations))
         self.senal_update_ofgs.emit(combinaciones_final)
 
-    def search_ofgs(self, area):
-        self.ofgs.clear()
-        print(area)
-        url = f"https://buscacursos.uc.cl/?cxml_semestre=2023-2&cxml_sigla=&cxml_nrc=&cxml_nombre=&cxml_categoria=TODOS&cxml_area_fg={p.OFG[area]}&cxml_formato_cur=TODOS&cxml_profesor=&cxml_campus=TODOS&cxml_unidad_academica=TODOS&cxml_horario_tipo_busqueda=si_tenga&cxml_horario_tipo_busqueda_actividad=TODOS#resultados"
+    def parse_url(self, url) -> dict:
+        courses = {}
         response = requests.get(url)
         soup = BeautifulSoup(response.text, "html.parser")
-
         table = soup.find(
             "table",
             attrs={"width": "100%", "cellpadding": "3", "cellspacing": "1", "border": "0"},
@@ -275,7 +220,9 @@ class Logic(QObject):
                     else:
                         print(sigla)
                         print(tipo)
-            final_section = Section(
+            if sigla not in courses:
+                courses[sigla] = Course(sigla)
+            seccion = Section(
                     nrc,
                     section,
                     name,
@@ -285,9 +232,8 @@ class Logic(QObject):
                     lab.copy(),
                     taller.copy()
                 )
-            if sigla not in self.ofgs:
-                self.ofgs[sigla] = Course(sigla)
-            self.ofgs[sigla].sections.append(final_section)
+            courses[sigla].sections.append(seccion)
+        return courses
 
 
 if __name__ == "__main__":
