@@ -147,6 +147,7 @@ class ScheduleWindow(QWidget):
     def addItem(self, course):
         for dia, modulos in course.catedra.items():
             for modulo in modulos:
+                modulo -= 1
                 if self.tb_schedule.cellWidget(modulo, p.DIAS[dia]):
                     self.tb_schedule.cellWidget(modulo, p.DIAS[dia]).addLabel(f"{course.id}-{','.join(course.sections)}", p.COLORES[p.CATEDRA])
                 else:
@@ -155,6 +156,7 @@ class ScheduleWindow(QWidget):
 
         for dia, modulos in course.lab.items():
             for modulo in modulos:
+                modulo -= 1
                 if self.tb_schedule.cellWidget(modulo, p.DIAS[dia]):
                     self.tb_schedule.cellWidget(modulo, p.DIAS[dia]).addLabel(f"{course.id}-{','.join(course.sections)}", p.COLORES[p.LAB])
                 else:
@@ -162,6 +164,7 @@ class ScheduleWindow(QWidget):
                     self.tb_schedule.setCellWidget(modulo, p.DIAS[dia], item)
         for dia, modulos in course.ayudantia.items():
             for modulo in modulos:
+                modulo -= 1
                 if self.tb_schedule.cellWidget(modulo, p.DIAS[dia]):
                     self.tb_schedule.cellWidget(modulo, p.DIAS[dia]).addLabel(f"{course.id}-{','.join(course.sections)}", p.COLORES[p.AYUDANTIA])
                 else:
@@ -286,6 +289,7 @@ class OFGWindow(QWidget):
     def addItem(self, course):
         for dia, modulos in course.catedra.items():
             for modulo in modulos:
+                modulo -= 1
                 if self.tb_schedule.cellWidget(modulo, p.DIAS[dia]):
                     self.tb_schedule.cellWidget(modulo, p.DIAS[dia]).addLabel(f"{course.id}-{','.join(course.sections)}", p.COLORES[p.CATEDRA])
                 else:
@@ -294,6 +298,7 @@ class OFGWindow(QWidget):
 
         for dia, modulos in course.lab.items():
             for modulo in modulos:
+                modulo -= 1
                 if self.tb_schedule.cellWidget(modulo, p.DIAS[dia]):
                     self.tb_schedule.cellWidget(modulo, p.DIAS[dia]).addLabel(f"{course.id}-{','.join(course.sections)}", p.COLORES[p.LAB])
                 else:
@@ -301,6 +306,7 @@ class OFGWindow(QWidget):
                     self.tb_schedule.setCellWidget(modulo, p.DIAS[dia], item)
         for dia, modulos in course.ayudantia.items():
             for modulo in modulos:
+                modulo -= 1
                 if self.tb_schedule.cellWidget(modulo, p.DIAS[dia]):
                     self.tb_schedule.cellWidget(modulo, p.DIAS[dia]).addLabel(f"{course.id}-{','.join(course.sections)}", p.COLORES[p.AYUDANTIA])
                 else:
