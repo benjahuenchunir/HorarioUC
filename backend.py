@@ -234,14 +234,3 @@ class Logic(QObject):
                 )
             courses[sigla].sections.append(seccion)
         return courses
-
-
-if __name__ == "__main__":
-    """programacion = scrape_course_schedule("IIC1103")
-    edo = scrape_course_schedule("MAT1640")
-    dic = {"IIC1103": programacion, "MAT1640": edo}
-    combinations = generate_course_combinations(dic)
-    for combinacion in combinations:
-        print(combinacion)
-    print(len(combinations))"""
-    ...

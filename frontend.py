@@ -100,7 +100,7 @@ class ScheduleWindow(QWidget):
         super().__init__()
         self.setGeometry(0, 0, 1280, 720)
         self.course_list = []
-        self.current_course_index = 0
+        self.__current_course_index = 0
         layout = QVBoxLayout()
         self.setLayout(layout)
 
@@ -145,6 +145,14 @@ class ScheduleWindow(QWidget):
         self.btn_next.clicked.connect(self.increase_current_index)
         self.btn_previous.clicked.connect(self.decrease_current_index)
         btn_ofgs.clicked.connect(self.enviar_buscar_ofgs)
+    
+    @property
+    def current_course_index(self):
+        return self.__current_course_index
+
+    @current_course_index.setter
+    def current_course_index(self, value):
+        self.__current_course_index =  max(0, min(value, len(self.course_list) - 1))
 
     def add_course_schedule(self, course):
         self.add_item(course.id, course.sections, course.catedra.items(), p.COLORES[p.CATEDRA])
@@ -163,7 +171,7 @@ class ScheduleWindow(QWidget):
                     self.tb_schedule.setCellWidget(modulo, p.DIAS[dia], item)
 
     def increase_current_index(self):
-        self.current_course_index = self.current_course_index + 1
+        self.current_course_index += 1
         if self.current_course_index == len(self.course_list) - 1:
             self.btn_next.setEnabled(False)
         self.btn_previous.setEnabled(True)
@@ -171,7 +179,7 @@ class ScheduleWindow(QWidget):
         self.update_current_index_label()
 
     def decrease_current_index(self):
-        self.current_course_index = self.current_course_index - 1
+        self.current_course_index -= 1
         if self.current_course_index == 0:
             self.btn_previous.setEnabled(False)
         self.btn_next.setEnabled(True)
@@ -194,6 +202,7 @@ class ScheduleWindow(QWidget):
         self.update_current_index_label()
         self.update_combinations_label()
         self.update_schedule()
+        self.btn_previous.setEnabled(False)
         self.btn_next.setEnabled(True)
         if self.current_course_index == len(self.course_list) - 1:
             self.btn_next.setEnabled(False)
@@ -236,7 +245,7 @@ class OFGWindow(QWidget):
         super().__init__()
         self.setGeometry(0, 0, 1280, 720)
         self.course_list = []
-        self.current_course_index = 0
+        self.__current_course_index = 0
         layout = QVBoxLayout()
         self.setLayout(layout)
 
@@ -276,6 +285,17 @@ class OFGWindow(QWidget):
         self.qcb_ofg_areas.currentTextChanged.connect(self.enviar_cambiar_area)
         self.btn_back.clicked.connect(lambda x: self.senal_volver.emit())
 
+    @property
+    def current_course_index(self):
+        return self.__current_course_index
+
+    @current_course_index.setter
+    def current_course_index(self, value):
+        print(value)
+        print(min(value, len(self.course_list) - 1))
+        print(max(0, min(value, len(self.course_list) - 1)))
+        self.__current_course_index = max(0, min(value, len(self.course_list) - 1))
+
     def iniciar(self):
         self.lbl_combinations.clear()
         self.lbl_current_ofg.clear()
@@ -301,14 +321,14 @@ class OFGWindow(QWidget):
                     self.tb_schedule.setCellWidget(modulo, p.DIAS[dia], item)
 
     def increase_current_index(self):
-        self.current_course_index = self.current_course_index + 1
+        self.current_course_index += 1
         if self.current_course_index == len(self.course_list) - 1:
             self.btn_next.setEnabled(False)
         self.btn_previous.setEnabled(True)
         self.update_schedule()
 
     def decrease_current_index(self):
-        self.current_course_index = self.current_course_index - 1
+        self.current_course_index -= 1
         if self.current_course_index == 0:
             self.btn_previous.setEnabled(False)
         self.btn_next.setEnabled(True)
@@ -331,6 +351,7 @@ class OFGWindow(QWidget):
         self.current_course_index = 0
         self.update_combinations_label()
         self.update_schedule()
+        self.btn_previous.setEnabled(False)
         self.btn_next.setEnabled(True)
         if self.current_course_index == len(self.course_list) - 1:
             self.btn_next.setEnabled(False)
