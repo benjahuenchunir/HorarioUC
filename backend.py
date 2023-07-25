@@ -21,6 +21,7 @@ class Section:
         self,
         nrc,
         section,
+        name,
         teacher,
         catedra: defaultdict,
         ayudantia: defaultdict,
@@ -28,6 +29,7 @@ class Section:
     ):
         self.nrc = nrc
         self.section = section
+        self.name = name
         self.teacher = teacher
         self.catedra = dict(catedra)
         self.ayudantia = dict(ayudantia)
@@ -36,9 +38,10 @@ class Section:
 
 class GroupedSection:
     def __init__(
-        self, id, catedra: defaultdict, ayudantia: defaultdict, lab: defaultdict
+        self, id, name, catedra: defaultdict, ayudantia: defaultdict, lab: defaultdict
     ) -> None:
         self.id = id
+        self.name = name
         self.nrcs = []
         self.sections = []
         self.teachers = []
@@ -89,6 +92,7 @@ class Logic(QObject):
             cells = row.find_all("td")
             nrc = cells[0].text.strip()
             section = cells[4].text.strip()
+            name = cells[9].text.strip()
             teacher = cells[10].text.strip()
             schedules = cells[16].table.find_all("tr")
             catedra = defaultdict(list)
@@ -111,6 +115,7 @@ class Logic(QObject):
                 Section(
                     nrc,
                     section,
+                    name,
                     teacher,
                     catedra.copy(),
                     ayudantia.copy(),
@@ -132,7 +137,7 @@ class Logic(QObject):
         for key, courses in groupby(
             course.sections, key=attrgetter("catedra", "ayudantia", "lab")
         ):
-            grouped_section = GroupedSection(course.id, key[0], key[1], key[2])
+            grouped_section = GroupedSection(course.id, course.sections[0].name, key[0], key[1], key[2])
             for section in courses:
                 grouped_section.nrcs.append(section.nrc)
                 grouped_section.sections.append(section.section)
@@ -143,7 +148,6 @@ class Logic(QObject):
     def are_courses_valid(self, combination):
         schedule_per_day = {}
         for course in combination:  # Catedra con catedra
-            if course.id == "SUS2032" or course.id == "IIC1253":
             for key, value in course.catedra.items():
                 if key not in schedule_per_day:
                     schedule_per_day[key] = value.copy()
@@ -231,6 +235,7 @@ class Logic(QObject):
             sigla = cells[1].text.strip()
             nrc = cells[0].text.strip()
             section = cells[4].text.strip()
+            name = cells[9].text.strip()
             teacher = cells[10].text.strip()
             schedules = cells[16].table.find_all("tr")
             catedra = defaultdict(list)
@@ -252,6 +257,7 @@ class Logic(QObject):
             final_section = Section(
                     nrc,
                     section,
+                    name,
                     teacher,
                     catedra.copy(),
                     ayudantia.copy(),

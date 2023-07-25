@@ -23,6 +23,7 @@ class HorarioMaker:
         self.front.senal_buscar_ofgs.connect(self.change_to_ofgs)
         self.ofgs.senal_cambiar_area.connect(self.back.change_ofg_area)
         self.back.senal_update_ofgs.connect(self.ofgs.update_ofgs)
+        self.ofgs.senal_volver.connect(self.change_to_main)
 
     def iniciar(self):
         self.front.show()
@@ -32,7 +33,11 @@ class HorarioMaker:
         self.back.current_combination.clear()
         for course in selected_combination:
             self.back.current_combination.append([course])
-        self.ofgs.show()
+        self.ofgs.iniciar()
+
+    def change_to_main(self):
+        self.ofgs.close()
+        self.front.show()
 
 
 if __name__ == "__main__":

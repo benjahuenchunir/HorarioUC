@@ -40,14 +40,16 @@ class DoubleLineWidget(QWidget):
 
 
 class CourseInfoListElement(QWidget):
-    def __init__(self, id_, seccion, nrc, profesor):
+    def __init__(self, id_, name, seccion, nrc, profesor):
         super().__init__()
 
         hbox = QHBoxLayout()
         self.setLayout(hbox)
-
         self.lbl_id = QLabel(id_, self)
         hbox.addWidget(self.lbl_id)
+        self.lbl_name = QLabel(name, self)
+        self.lbl_name.setWordWrap(True)
+        hbox.addWidget(self.lbl_name)        
         self.lbl_seccion = QLabel("\n".join(seccion), self)
         hbox.addWidget(self.lbl_seccion)
         self.lbl_nrc = QLabel("\n".join(nrc), self)
@@ -189,16 +191,15 @@ class ScheduleWindow(QWidget):
 
     def update_schedule(self):
         self.list_current_courses.clear()
-        self.tb_schedule.clear()
-        self.tb_schedule.setHorizontalHeaderLabels(p.DIAS.keys())
+        self.tb_schedule.clearContents()
         for course in self.course_list[self.current_course_index]:
             self.addItem(course)
             item = QListWidgetItem()
             item.setSizeHint(QSize(100, 80))
             self.list_current_courses.addItem(item)
-            self.list_current_courses.setItemWidget(item, CourseInfoListElement(course.id, course.sections, course.nrcs, course.teachers))
+            self.list_current_courses.setItemWidget(item, CourseInfoListElement(course.id, course.name, course.sections, course.nrcs, course.teachers))
 
-    def new_schedule(self, combinations): # TODO falta eliminar curso de la lista principal al apretar borrar
+    def new_schedule(self, combinations):
         self.course_list = combinations
         self.current_course_index = 0
         self.update_current_index_label()
@@ -240,6 +241,7 @@ class ScheduleWindow(QWidget):
 
 class OFGWindow(QWidget):
     senal_cambiar_area = pyqtSignal(str)
+    senal_volver = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -249,6 +251,8 @@ class OFGWindow(QWidget):
         layout = QVBoxLayout()
         self.setLayout(layout)
 
+        self.btn_back = QPushButton("Volver", self)
+        layout.addWidget(self.btn_back)
         self.qcb_ofg_areas = QComboBox(self)
         self.qcb_ofg_areas.addItem("-")
         for area in p.OFG:
@@ -281,7 +285,17 @@ class OFGWindow(QWidget):
         self.btn_next.clicked.connect(self.increase_current_index)
         self.btn_previous.clicked.connect(self.decrease_current_index)
         self.qcb_ofg_areas.currentTextChanged.connect(self.enviar_cambiar_area)
+        self.btn_back.clicked.connect(lambda x: self.senal_volver.emit())
 
+    def iniciar(self):
+        self.lbl_combinations.clear()
+        self.lbl_current_ofg.clear()
+        self.list_current_courses.clear()
+        self.tb_schedule.clearContents()
+        self.qcb_ofg_areas.setCurrentIndex(0)
+        self.show()
+        
+    
     def addItem(self, course):
         for dia, modulos in course.catedra.items():
             for modulo in modulos:
@@ -325,8 +339,7 @@ class OFGWindow(QWidget):
 
     def update_schedule(self):
         self.list_current_courses.clear()
-        self.tb_schedule.clear()
-        self.tb_schedule.setHorizontalHeaderLabels(p.DIAS.keys())
+        self.tb_schedule.clearContents()
         id_, combinacion = self.course_list[self.current_course_index]
         self.lbl_current_ofg.setText(id_)
         for course in combinacion[0]:
@@ -334,7 +347,7 @@ class OFGWindow(QWidget):
             item = QListWidgetItem()
             item.setSizeHint(QSize(100, 80))
             self.list_current_courses.addItem(item)
-            self.list_current_courses.setItemWidget(item, CourseInfoListElement(course.id, course.sections, course.nrcs, course.teachers))
+            self.list_current_courses.setItemWidget(item, CourseInfoListElement(course.id, course.name, course.sections, course.nrcs, course.teachers))
 
     def update_ofgs(self, ofgs: list):
         self.course_list = ofgs
