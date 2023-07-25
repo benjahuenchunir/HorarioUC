@@ -92,6 +92,7 @@ class ScheduleWindow(QWidget):
     senal_buscar_sigla = pyqtSignal(str)
     senal_borrar_curso = pyqtSignal(str)
     senal_cambiar_seccion = pyqtSignal(str, int)
+    senal_buscar_ofgs = pyqtSignal(tuple)
 
     def __init__(self):
         super().__init__()
@@ -132,12 +133,16 @@ class ScheduleWindow(QWidget):
         layout_courses.addWidget(self.tb_schedule)
         layout_courses.addWidget(self.list_current_courses)
         layout.addLayout(layout_courses)
+        
+        btn_ofgs = QPushButton("Buscar OFGs", self)
+        layout.addWidget(btn_ofgs)
 
         self.update_current_index_label()
         self.update_combinations_label()
         self.btn_add.clicked.connect(self.buscar_sigla)
         self.btn_next.clicked.connect(self.increase_current_index)
         self.btn_previous.clicked.connect(self.decrease_current_index)
+        btn_ofgs.clicked.connect(self.enviar_buscar_ofgs)
 
     def addItem(self, course):
         for dia, modulos in course.catedra.items():
@@ -226,6 +231,121 @@ class ScheduleWindow(QWidget):
                 del item
                 break
 
+    def enviar_buscar_ofgs(self):
+        self.senal_buscar_ofgs.emit(self.course_list[self.current_course_index])
+
+
+class OFGWindow(QWidget):
+    senal_cambiar_area = pyqtSignal(str)
+
+    def __init__(self):
+        super().__init__()
+        self.setGeometry(0, 0, 1280, 720)
+        self.course_list = []
+        self.current_course_index = 0
+        layout = QVBoxLayout()
+        self.setLayout(layout)
+
+        self.qcb_ofg_areas = QComboBox(self)
+        for area in p.OFG:
+            self.qcb_ofg_areas.addItem(area)
+        self.lbl_combinations = QLabel(self)
+        layout.addWidget(self.qcb_ofg_areas)
+        layout.addWidget(self.lbl_combinations)
+
+        layout_btn = QHBoxLayout()
+        self.btn_previous = QPushButton("Anterior", self)
+        self.btn_previous.setEnabled(False)
+        self.lbl_current_ofg = QLabel(self)
+        self.btn_next = QPushButton("Siguiente", self)
+        self.btn_next.setEnabled(False)
+        layout_btn.addWidget(self.btn_previous)
+        layout_btn.addWidget(self.lbl_current_ofg)
+        layout_btn.addWidget(self.btn_next)
+        layout.addLayout(layout_btn)
+        layout_courses = QHBoxLayout()
+        self.tb_schedule = QTableWidget(self)
+        self.tb_schedule.setColumnCount(5)
+        self.tb_schedule.setHorizontalHeaderLabels(p.DIAS.keys())
+        self.tb_schedule.setRowCount(8)
+        self.list_current_courses = QListWidget(self)
+        layout_courses.addWidget(self.tb_schedule)
+        layout_courses.addWidget(self.list_current_courses)
+        layout.addLayout(layout_courses)
+
+        #self.update_current_index_label()
+        #self.update_combinations_label()
+        self.btn_next.clicked.connect(self.increase_current_index)
+        self.btn_previous.clicked.connect(self.decrease_current_index)
+        self.qcb_ofg_areas.currentTextChanged.connect(lambda x: self.senal_cambiar_area.emit(x))
+
+    def iniciar(self):
+        self.senal_cambiar_area.emit(self.qcb_ofg_areas.currentText())
+        self.show()
+
+    def addItem(self, course):
+        for dia, modulos in course.catedra.items():
+            for modulo in modulos:
+                if self.tb_schedule.cellWidget(modulo, p.DIAS[dia]):
+                    self.tb_schedule.cellWidget(modulo, p.DIAS[dia]).addLabel(f"{course.id}-{','.join(course.sections)}", p.COLORES[p.CATEDRA])
+                else:
+                    item = DoubleLineWidget(f"{course.id}-{','.join(course.sections)}", p.COLORES[p.CATEDRA])
+                    self.tb_schedule.setCellWidget(modulo, p.DIAS[dia], item)
+
+        for dia, modulos in course.lab.items():
+            for modulo in modulos:
+                if self.tb_schedule.cellWidget(modulo, p.DIAS[dia]):
+                    self.tb_schedule.cellWidget(modulo, p.DIAS[dia]).addLabel(f"{course.id}-{','.join(course.sections)}", p.COLORES[p.LAB])
+                else:
+                    item = DoubleLineWidget(f"{course.id}-{','.join(course.sections)}", p.COLORES[p.LAB])
+                    self.tb_schedule.setCellWidget(modulo, p.DIAS[dia], item)
+        for dia, modulos in course.ayudantia.items():
+            for modulo in modulos:
+                if self.tb_schedule.cellWidget(modulo, p.DIAS[dia]):
+                    self.tb_schedule.cellWidget(modulo, p.DIAS[dia]).addLabel(f"{course.id}-{','.join(course.sections)}", p.COLORES[p.AYUDANTIA])
+                else:
+                    item = DoubleLineWidget(f"{course.id}-{','.join(course.sections)}", p.COLORES[p.AYUDANTIA])
+                    self.tb_schedule.setCellWidget(modulo, p.DIAS[dia], item)
+
+    def increase_current_index(self):
+        self.current_course_index = self.current_course_index + 1
+        if self.current_course_index == len(self.course_list) - 1:
+            self.btn_next.setEnabled(False)
+        self.btn_previous.setEnabled(True)
+        self.update_schedule()
+
+    def decrease_current_index(self):
+        self.current_course_index = self.current_course_index - 1
+        if self.current_course_index == 0:
+            self.btn_previous.setEnabled(False)
+        self.btn_next.setEnabled(True)
+        self.update_schedule()
+
+    def update_schedule(self):
+        self.list_current_courses.clear()
+        self.tb_schedule.clear()
+        self.tb_schedule.setHorizontalHeaderLabels(p.DIAS.keys())
+        id_, combinacion = self.course_list[self.current_course_index]
+        self.lbl_current_ofg.setText(id_)
+        for course in combinacion[0]:
+            self.addItem(course)
+            item = QListWidgetItem()
+            item.setSizeHint(QSize(100, 80))
+            self.list_current_courses.addItem(item)
+            self.list_current_courses.setItemWidget(item, CourseInfoListElement(course.id, course.sections, course.nrcs, course.teachers))
+
+    def update_ofgs(self, ofgs: list):
+        self.course_list = ofgs
+        self.current_course_index = 0
+        self.update_combinations_label()
+        self.update_schedule()
+        self.btn_next.setEnabled(True)
+        if self.current_course_index == len(self.course_list) - 1:
+            self.btn_next.setEnabled(False)
+
+    def update_combinations_label(self):
+        self.lbl_combinations.setText(f"{len(self.course_list)} combinaciones")
+
 
 if __name__ == "__main__":
 
@@ -236,7 +356,7 @@ if __name__ == "__main__":
     sys.__excepthook__ = hook
 
     app = QApplication(sys.argv)
-    main = CourseInfoListElement("test", "test", "test", "test")
+    main = OFGWindow()
     main.show()
 
     sys.exit(app.exec())

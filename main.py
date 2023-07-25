@@ -1,5 +1,5 @@
 from backend import Logic
-from frontend import ScheduleWindow
+from frontend import ScheduleWindow, OFGWindow
 import parametros as p
 import sys
 from PyQt5.QtWidgets import QApplication
@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QApplication
 class HorarioMaker:
     def __init__(self):
         self.front = ScheduleWindow()
+        self.ofgs = OFGWindow()
         self.back = Logic()
         self.conectar_senales()
 
@@ -19,8 +20,19 @@ class HorarioMaker:
         self.front.senal_cambiar_seccion.connect(self.back.filter_course_section)
         self.back.senal_borrar_curso.connect(self.front.delete_course)
 
+        self.front.senal_buscar_ofgs.connect(self.change_to_ofgs)
+        self.ofgs.senal_cambiar_area.connect(self.back.change_ofg_area)
+        self.back.senal_update_ofgs.connect(self.ofgs.update_ofgs)
+
     def iniciar(self):
         self.front.show()
+
+    def change_to_ofgs(self, selected_combination):
+        self.front.hide()
+        self.back.current_combination.clear()
+        for course in selected_combination:
+            self.back.current_combination.append([course])
+        self.ofgs.iniciar()
 
 
 if __name__ == "__main__":
