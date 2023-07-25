@@ -144,15 +144,11 @@ class Logic(QObject):
         schedule_per_day = {}
         for course in combination:  # Catedra con catedra
             if course.id == "SUS2032" or course.id == "IIC1253":
-                print(course.id)
-                print(schedule_per_day)
-                print(course.catedra.items())
             for key, value in course.catedra.items():
                 if key not in schedule_per_day:
                     schedule_per_day[key] = value.copy()
                 else:
                     if any(val in schedule_per_day[key] for val in value):
-                        print("malo")
                         return False
                     else:
                         schedule_per_day[key].extend(value.copy())

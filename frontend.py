@@ -250,6 +250,7 @@ class OFGWindow(QWidget):
         self.setLayout(layout)
 
         self.qcb_ofg_areas = QComboBox(self)
+        self.qcb_ofg_areas.addItem("-")
         for area in p.OFG:
             self.qcb_ofg_areas.addItem(area)
         self.lbl_combinations = QLabel(self)
@@ -276,15 +277,10 @@ class OFGWindow(QWidget):
         layout_courses.addWidget(self.list_current_courses)
         layout.addLayout(layout_courses)
 
-        #self.update_current_index_label()
-        #self.update_combinations_label()
+        self.update_combinations_label()
         self.btn_next.clicked.connect(self.increase_current_index)
         self.btn_previous.clicked.connect(self.decrease_current_index)
-        self.qcb_ofg_areas.currentTextChanged.connect(lambda x: self.senal_cambiar_area.emit(x))
-
-    def iniciar(self):
-        self.senal_cambiar_area.emit(self.qcb_ofg_areas.currentText())
-        self.show()
+        self.qcb_ofg_areas.currentTextChanged.connect(self.enviar_cambiar_area)
 
     def addItem(self, course):
         for dia, modulos in course.catedra.items():
@@ -351,6 +347,10 @@ class OFGWindow(QWidget):
 
     def update_combinations_label(self):
         self.lbl_combinations.setText(f"{len(self.course_list)} combinaciones")
+
+    def enviar_cambiar_area(self, area):
+        if area != "-":
+            self.senal_cambiar_area.emit(area)
 
 
 if __name__ == "__main__":

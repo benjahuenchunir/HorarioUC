@@ -32,7 +32,7 @@ class HorarioMaker:
         self.back.current_combination.clear()
         for course in selected_combination:
             self.back.current_combination.append([course])
-        self.ofgs.iniciar()
+        self.ofgs.show()
 
 
 if __name__ == "__main__":
