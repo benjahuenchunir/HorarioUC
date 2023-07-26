@@ -9,9 +9,11 @@ from PyQt5.QtWidgets import (
     QListWidget,
     QLineEdit,
     QListWidgetItem,
-    QComboBox
+    QComboBox,
+    QTableWidgetItem
 )
 from PyQt5.QtCore import pyqtSignal, QSize
+from PyQt5.QtGui import QColor
 import parametros as p
 import sys
 
@@ -129,13 +131,15 @@ class ScheduleWindow(QWidget):
         layout_courses = QHBoxLayout()
         self.tb_schedule = QTableWidget(self)
         self.tb_schedule.setColumnCount(5)
+        self.tb_schedule.setRowCount(9)
+        self.tb_schedule.setRowHeight(4, 1)
+        self.tb_schedule.setVerticalHeaderLabels(p.H_LABELS_HORARIO)
         self.tb_schedule.setHorizontalHeaderLabels(p.DIAS.keys())
-        self.tb_schedule.setRowCount(8)
+        self.set_lunch_line(4, QColor(224, 224, 224))
         self.list_current_courses = QListWidget(self)
         layout_courses.addWidget(self.tb_schedule)
         layout_courses.addWidget(self.list_current_courses)
         layout.addLayout(layout_courses)
-        
         btn_ofgs = QPushButton("Buscar OFGs", self)
         layout.addWidget(btn_ofgs)
 
@@ -154,6 +158,11 @@ class ScheduleWindow(QWidget):
     def current_course_index(self, value):
         self.__current_course_index =  max(0, min(value, len(self.course_list) - 1))
 
+    def set_lunch_line(self, rowIndex, color):
+        for j in range(self.tb_schedule.columnCount()):
+            self.tb_schedule.setItem(rowIndex, j, QTableWidgetItem())
+            self.tb_schedule.item(rowIndex, j).setBackground(color)
+
     def add_course_schedule(self, course):
         self.add_item(course.id, course.sections, course.catedra.items(), p.COLORES[p.CATEDRA])
         self.add_item(course.id, course.sections, course.ayudantia.items(), p.COLORES[p.AYUDANTIA])
@@ -163,7 +172,8 @@ class ScheduleWindow(QWidget):
     def add_item(self, course_id, sections, items, color):
         for dia, modulos in items:
             for modulo in modulos:
-                modulo -= 1
+                if modulo <= 4:
+                    modulo -= 1
                 if self.tb_schedule.cellWidget(modulo, p.DIAS[dia]):
                     self.tb_schedule.cellWidget(modulo, p.DIAS[dia]).addLabel(f"{course_id}-{','.join(sections)}", color)
                 else:
@@ -189,6 +199,7 @@ class ScheduleWindow(QWidget):
     def update_schedule(self):
         self.list_current_courses.clear()
         self.tb_schedule.clearContents()
+        self.set_lunch_line(4, QColor(224, 224, 224))
         for course in self.course_list[self.current_course_index]:
             self.add_course_schedule(course)
             item = QListWidgetItem()
@@ -272,8 +283,11 @@ class OFGWindow(QWidget):
         layout_courses = QHBoxLayout()
         self.tb_schedule = QTableWidget(self)
         self.tb_schedule.setColumnCount(5)
+        self.tb_schedule.setRowCount(9)
+        self.tb_schedule.setRowHeight(4, 1)
+        self.tb_schedule.setVerticalHeaderLabels(p.H_LABELS_HORARIO)
         self.tb_schedule.setHorizontalHeaderLabels(p.DIAS.keys())
-        self.tb_schedule.setRowCount(8)
+        self.set_lunch_line()
         self.list_current_courses = QListWidget(self)
         layout_courses.addWidget(self.tb_schedule)
         layout_courses.addWidget(self.list_current_courses)
@@ -291,9 +305,6 @@ class OFGWindow(QWidget):
 
     @current_course_index.setter
     def current_course_index(self, value):
-        print(value)
-        print(min(value, len(self.course_list) - 1))
-        print(max(0, min(value, len(self.course_list) - 1)))
         self.__current_course_index = max(0, min(value, len(self.course_list) - 1))
 
     def iniciar(self):
@@ -302,7 +313,12 @@ class OFGWindow(QWidget):
         self.list_current_courses.clear()
         self.tb_schedule.clearContents()
         self.qcb_ofg_areas.setCurrentIndex(0)
-        self.show()  
+        self.show()
+
+    def set_lunch_line(self):
+        for j in range(self.tb_schedule.columnCount()):
+            self.tb_schedule.setItem(4, j, QTableWidgetItem())
+            self.tb_schedule.item(4, j).setBackground(QColor(224, 224, 224))
 
     def add_course_schedule(self, course):
         self.add_item(course.id, course.sections, course.catedra.items(), p.COLORES[p.CATEDRA])
@@ -313,7 +329,8 @@ class OFGWindow(QWidget):
     def add_item(self, course_id, sections, items, color):
         for dia, modulos in items:
             for modulo in modulos:
-                modulo -= 1
+                if modulo <= 4:
+                    modulo -= 1
                 if self.tb_schedule.cellWidget(modulo, p.DIAS[dia]):
                     self.tb_schedule.cellWidget(modulo, p.DIAS[dia]).addLabel(f"{course_id}-{','.join(sections)}", color)
                 else:
@@ -337,6 +354,7 @@ class OFGWindow(QWidget):
     def update_schedule(self):
         self.list_current_courses.clear()
         self.tb_schedule.clearContents()
+        self.set_lunch_line()
         id_, combinacion = self.course_list[self.current_course_index]
         self.lbl_current_ofg.setText(id_)
         for course in combinacion[0]:

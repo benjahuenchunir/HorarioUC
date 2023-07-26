@@ -5,6 +5,7 @@ TALLER = "TAL"
 DIAS = {
     "L": 0, "M": 1, "W": 2, "J": 3, "V": 4
 }
+H_LABELS_HORARIO = ["8:20", "9:40", "11:00", "12:20", "Almuerzo", "14:50", "16:10", "17:30", "18:50"]
 COLORES = {
     CATEDRA: "#FBC575", LAB: "#B3D4F5", AYUDANTIA: "#99CC99", TALLER: "#C7C2F8"
 }

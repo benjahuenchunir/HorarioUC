@@ -13,7 +13,7 @@ class Course:
         self.sections = []
 
     def __repr__(self) -> str:
-        return f"Sigla: {self.id}, Catedra: {self.catedra}, Ayudantia: {self.ayudantia}, Lab: {self.lab}"
+        return f"Sigla: {self.id}"
 
 
 class Section:
@@ -51,6 +51,9 @@ class GroupedSection:
         self.ayudantia = dict(ayudantia)
         self.lab = lab
         self.taller = dict(taller)
+    
+    def __repr__(self) -> str:
+        return f"Sigla:{self.id}"
 
 
 class Logic(QObject):
@@ -143,8 +146,6 @@ class Logic(QObject):
                     if str(filtered_section) in section.sections:
                         filtered_courses.append([section])
                         break
-        # print(course_lists)
-
         # Generate all possible combinations of courses
         all_combinations = product(*filtered_courses)
 
@@ -197,6 +198,8 @@ class Logic(QObject):
             section = cells[4].text.strip()
             name = cells[9].text.strip()
             teacher = cells[10].text.strip()
+            campus = cells[11].text.strip()
+            creditos = cells[12].text.strip()
             schedules = cells[16].table.find_all("tr")
             catedra = defaultdict(list)
             ayudantia = defaultdict(list)
@@ -207,6 +210,8 @@ class Logic(QObject):
                 tipo = schedule_cells[1].text.strip()
                 horario = schedule_cells[0].text.strip()
                 dias, modulos_ = horario.split(":")
+                if dias == "" or modulos_ == "":
+                    continue
                 for dia in dias.split("-"):
                     modulos = map(int, modulos_.split(","))
                     if tipo == p.CATEDRA:
@@ -219,18 +224,19 @@ class Logic(QObject):
                         taller[dia].extend(modulos)
                     else:
                         print(sigla)
+            if campus == "San Joaquín" and (creditos == "10" or creditos == "0"): # TODO mover a propiedad de seccion y que se pueda filtrar
                         print(tipo)
-            if sigla not in courses:
-                courses[sigla] = Course(sigla)
-            seccion = Section(
-                    nrc,
-                    section,
-                    name,
-                    teacher,
-                    catedra.copy(),
-                    ayudantia.copy(),
-                    lab.copy(),
-                    taller.copy()
-                )
-            courses[sigla].sections.append(seccion)
+                if sigla not in courses:
+                    courses[sigla] = Course(sigla)
+                seccion = Section(
+                        nrc,
+                        section,
+                        name,
+                        teacher,
+                        catedra.copy(),
+                        ayudantia.copy(),
+                        lab.copy(),
+                        taller.copy()
+                    )
+                courses[sigla].sections.append(seccion)
         return courses
