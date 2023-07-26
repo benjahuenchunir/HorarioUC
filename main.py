@@ -27,12 +27,17 @@ class HorarioMaker:
 
     def iniciar(self):
         self.front.show()
-        self.front.senal_buscar_sigla.emit("FIS1533")
+        """self.front.senal_buscar_sigla.emit("FIS1533")
         self.front.senal_buscar_sigla.emit("EYP1113")
         self.front.senal_buscar_sigla.emit("IIC2413")
         self.front.senal_buscar_sigla.emit("EAG170A")
         self.front.senal_buscar_sigla.emit("BIO143M")
-        self.front.senal_buscar_sigla.emit("FIS0153")
+        self.front.senal_buscar_sigla.emit("FIS0153")"""
+        self.front.senal_buscar_sigla.emit("ICS1513")
+        self.front.senal_buscar_sigla.emit("TTF069")
+        self.front.senal_buscar_sigla.emit("MAT1620")
+        self.front.senal_buscar_sigla.emit("ICT2904")
+        self.front.senal_buscar_sigla.emit("IIC2233")
 
     def change_to_ofgs(self, selected_combination):
         self.front.hide()

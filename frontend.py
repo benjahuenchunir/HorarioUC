@@ -357,7 +357,7 @@ class OFGWindow(QWidget):
         self.set_lunch_line()
         id_, combinacion = self.course_list[self.current_course_index]
         self.lbl_current_ofg.setText(id_)
-        for course in combinacion[0]:
+        for course in combinacion:
             self.add_course_schedule(course)
             item = QListWidgetItem()
             item.setSizeHint(QSize(100, 80))

@@ -53,7 +53,7 @@ class GroupedSection:
         self.taller = dict(taller)
     
     def __repr__(self) -> str:
-        return f"Sigla:{self.id}"
+        return f"{self.id}:{self.sections}"
 
 
 class Logic(QObject):
@@ -148,7 +148,7 @@ class Logic(QObject):
                         break
         # Generate all possible combinations of courses
         all_combinations = product(*filtered_courses)
-
+        
         # Filter out the valid combinations
         valid_combinations = [
             combination
@@ -177,8 +177,8 @@ class Logic(QObject):
             self.ofgs[key] = self.group_courses_by_dict(course)
         for id, grouped_sections in self.ofgs.items():
             combinations = self.generate_course_combinations(self.current_combination + [grouped_sections])
-            if combinations:
-                combinaciones_final.append((id, combinations))
+            for combination in combinations:
+                combinaciones_final.append((id, combination))
         self.senal_update_ofgs.emit(combinaciones_final)
 
     def parse_url(self, url) -> dict:
@@ -225,7 +225,7 @@ class Logic(QObject):
                     else:
                         print(sigla)
                         print(tipo)
-            if campus == "San Joaquín" and (creditos == "10" or creditos == "0"): # TODO mover a propiedad de seccion y que se pueda filtrar
+            if campus == "San Joaquín" and (creditos == "10" or creditos == "0"): # TODO mover a propiedad de seccion y que se pueda filtrar, usar filtros de campus en url en vez de una vez buscados
                 if sigla not in courses:
                     courses[sigla] = Course(sigla)
                 seccion = Section(
