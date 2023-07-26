@@ -27,7 +27,7 @@ class DoubleLineWidget(QWidget):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.sizePolicy().hasHeightForWidth())
         self.setSizePolicy(sizePolicy)"""
-
+        self.setStyleSheet("padding :4px")
         self.main_layout = QVBoxLayout()
         label1 = QLabel(text)
         label1.setStyleSheet(f"background-color: {color}")

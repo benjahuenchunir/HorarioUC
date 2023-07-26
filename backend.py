@@ -224,8 +224,8 @@ class Logic(QObject):
                         taller[dia].extend(modulos)
                     else:
                         print(sigla)
-            if campus == "San Joaquín" and (creditos == "10" or creditos == "0"): # TODO mover a propiedad de seccion y que se pueda filtrar
                         print(tipo)
+            if campus == "San Joaquín" and (creditos == "10" or creditos == "0"): # TODO mover a propiedad de seccion y que se pueda filtrar
                 if sigla not in courses:
                     courses[sigla] = Course(sigla)
                 seccion = Section(
