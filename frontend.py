@@ -1,3 +1,5 @@
+import typing
+from PyQt5 import QtCore
 from PyQt5.QtWidgets import (
     QApplication,
     QWidget,
@@ -91,12 +93,32 @@ class CourseListElement(QWidget):
     def borrar(self):
         self.senal_borrar_curso.emit(self.lbl_id.text())
 
+class CourseFilters(QWidget):
+    def __init__(self, senal_campus, senal_creditos) -> None:
+        super().__init__()
+        self.senal_campus = senal_campus
+        self.senal_creditos = senal_creditos
+
+        layout_filters = QHBoxLayout()
+        self.setLayout(layout_filters)
+        self.qcb_campus_filter = QComboBox(self)
+        self.qcb_campus_filter.addItems(map(lambda x: x.replace("+", " "), p.CAMPUS))
+        self.qcb_credits_filter = QComboBox(self)
+        self.qcb_credits_filter.addItems(map(str, p.CREDITOS))
+        layout_filters.addWidget(self.qcb_campus_filter)
+        layout_filters.addWidget(self.qcb_credits_filter)
+
+        self.qcb_campus_filter.currentTextChanged.connect(lambda x: self.senal_campus.emit(x))
+        self.qcb_credits_filter.currentTextChanged.connect(lambda x: self.senal_creditos.emit(x))
+
 
 class ScheduleWindow(QWidget):
     senal_buscar_sigla = pyqtSignal(str)
     senal_borrar_curso = pyqtSignal(str)
     senal_cambiar_seccion = pyqtSignal(str, int)
     senal_buscar_ofgs = pyqtSignal(tuple)
+    senal_cambiar_campus = pyqtSignal(str)
+    senal_cambiar_creditos = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -105,6 +127,9 @@ class ScheduleWindow(QWidget):
         self.__current_course_index = 0
         layout = QVBoxLayout()
         self.setLayout(layout)
+
+        filters = CourseFilters(self.senal_cambiar_campus, self.senal_cambiar_creditos)
+        layout.addWidget(filters)
 
         layout_add = QHBoxLayout()
         self.txt_sigla = QLineEdit(self)
@@ -156,7 +181,7 @@ class ScheduleWindow(QWidget):
 
     @current_course_index.setter
     def current_course_index(self, value):
-        self.__current_course_index =  max(0, min(value, len(self.course_list) - 1))
+        self.__current_course_index = max(0, min(value, len(self.course_list) - 1))
 
     def set_lunch_line(self, rowIndex, color):
         for j in range(self.tb_schedule.columnCount()):

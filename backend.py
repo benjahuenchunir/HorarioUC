@@ -67,8 +67,10 @@ class Logic(QObject):
         self.courses = {}
         self.ofgs = {}
         self.sections = {}
-        self.tope_lab = False # TODO 
+        self.tope_lab = False # TODO
         self.tope_ayudantia = True
+        self.campus = p.TODOS
+        self.credits = p.TODOS
         self.current_combination = []
 
     def find_course_info(self, course_id):
