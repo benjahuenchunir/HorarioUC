@@ -74,7 +74,7 @@ class Logic(QObject):
         self.current_combination = []
 
     def find_course_info(self, course_id):
-        url = f"https://buscacursos.uc.cl/?cxml_semestre=2023-2&cxml_sigla={course_id}&cxml_nrc=&cxml_nombre=&cxml_categoria=TODOS&cxml_area_fg=TODOS&cxml_formato_cur=TODOS&cxml_profesor=&cxml_campus=TODOS&cxml_unidad_academica=TODOS&cxml_horario_tipo_busqueda=si_tenga&cxml_horario_tipo_busqueda_actividad=TODOS#resultados"
+        url = f"https://buscacursos.uc.cl/?cxml_semestre=2023-2&cxml_sigla={course_id}&cxml_nrc=&cxml_nombre=&cxml_categoria=TODOS&cxml_area_fg=TODOS&cxml_formato_cur=TODOS&cxml_profesor=&cxml_campus={self.campus}&cxml_unidad_academica=TODOS&cxml_horario_tipo_busqueda=si_tenga&cxml_horario_tipo_busqueda_actividad=TODOS#resultados"
         course = list(self.parse_url(url).values())[0]
         grouped_sections = self.group_courses_by_dict(course)
         self.courses[course_id] = grouped_sections
@@ -172,7 +172,7 @@ class Logic(QObject):
 
     def change_ofg_area(self, area):
         combinaciones_final = []
-        url = f"https://buscacursos.uc.cl/?cxml_semestre=2023-2&cxml_sigla=&cxml_nrc=&cxml_nombre=&cxml_categoria=TODOS&cxml_area_fg={p.OFG[area]}&cxml_formato_cur=TODOS&cxml_profesor=&cxml_campus=TODOS&cxml_unidad_academica=TODOS&cxml_horario_tipo_busqueda=si_tenga&cxml_horario_tipo_busqueda_actividad=TODOS#resultados"
+        url = f"https://buscacursos.uc.cl/?cxml_semestre=2023-2&cxml_sigla=&cxml_nrc=&cxml_nombre=&cxml_categoria=TODOS&cxml_area_fg={p.OFG[area]}&cxml_formato_cur=TODOS&cxml_profesor=&cxml_campus={self.campus}&cxml_unidad_academica=TODOS&cxml_horario_tipo_busqueda=si_tenga&cxml_horario_tipo_busqueda_actividad=TODOS#resultados"
         courses = self.parse_url(url)
         self.ofgs.clear()
         for key, course in courses.items():
@@ -200,7 +200,6 @@ class Logic(QObject):
             section = cells[4].text.strip()
             name = cells[9].text.strip()
             teacher = cells[10].text.strip()
-            campus = cells[11].text.strip()
             creditos = cells[12].text.strip()
             schedules = cells[16].table.find_all("tr")
             catedra = defaultdict(list)
@@ -227,7 +226,7 @@ class Logic(QObject):
                     else:
                         print(sigla)
                         print(tipo)
-            if campus == "San Joaquín" and (creditos == "10" or creditos == "0"): # TODO mover a propiedad de seccion y que se pueda filtrar, usar filtros de campus en url en vez de una vez buscados
+            if (self.credits == p.TODOS or self.credits == creditos):
                 if sigla not in courses:
                     courses[sigla] = Course(sigla)
                 seccion = Section(
@@ -242,3 +241,11 @@ class Logic(QObject):
                     )
                 courses[sigla].sections.append(seccion)
         return courses
+
+    def change_campus(self, campus): # TODO si se esta en ofgs debe actualizar solamente ofgs, o en realidad solo deberia estar en ofgs?
+        self.campus = campus
+        self.update_schedule()
+
+    def change_credits(self, credits):
+        self.credits = credits
+        self.update_schedule()

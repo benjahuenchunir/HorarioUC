@@ -13,6 +13,8 @@ class HorarioMaker:
         self.conectar_senales()
 
     def conectar_senales(self):
+        self.front.senal_cambiar_campus.connect(self.back.change_campus)
+        self.front.senal_cambiar_creditos.connect(self.back.change_credits)
         self.front.senal_buscar_sigla.connect(self.back.find_course_info)
         self.back.senal_add_course.connect(self.front.add_course)
         self.back.senal_update_schedule.connect(self.front.new_schedule)
