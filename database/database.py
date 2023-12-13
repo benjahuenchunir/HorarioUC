@@ -170,18 +170,6 @@ class BaseDatos:
             print(self.cursor.fetchall())
         except:
             print("Ocurrió un error. Revisa la instrucción SQL.")
-
-    # Crear backups de bases de datos
-    @conexion
-    @comprueba_bd
-    def copia_bd(self, nombre_bd):
-        # Obtiene la hora y fecha actuales
-        self.fecha_hora = datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S")
-            
-        # Se crea la copia de seguridad
-        with open(f'{carpeta_respaldo}/{nombre_bd}_{self.fecha_hora}.sql', 'w') as out:
-            subprocess.Popen(f'"C:/Program Files/MySQL/MySQL Workbench 8.0/"mysqldump --user=root --password={self.contrasena} --databases {nombre_bd}', shell=True, stdout=out)
-        print("Se creó la copia correctamente.")
     
     # Método para insertar registros en una tabla
     @conexion
@@ -218,5 +206,7 @@ class BaseDatos:
 if __name__ == "__main__":
     # Conectar a la base de datos y crear las tablas necesarias
     bd = BaseDatos(**acceso_bd)
+    bd.crear_dependencias()
     bd.insertar_registro(c.DATABASE, c.TABLA_CURSOS, s.SAMPLE_CURSOS)
+    bd.insertar_registro(c.DATABASE, c.TABLA_SECCIONES, s.SAMPLE_SECCIONES)
     
