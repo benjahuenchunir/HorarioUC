@@ -1,6 +1,7 @@
 from database.tables import CourseDTO, SectionDTO
 from scraper.models import Course, Section
 import constants as c
+import json
 
 def mapCourseToModel(course: CourseDTO, secciones: list[SectionDTO]) -> Course:
     return Course(
@@ -40,6 +41,8 @@ def mapCourseToDTO(course: Course) -> tuple[CourseDTO, list[SectionDTO]]:
     ), [mapSectionToDTO(section) for section in course[c.SECCIONES]]
 
 def mapSectionToDTO(section: Section) -> SectionDTO:
+    horario = {k: list(v) for k, v in section[c.HORARIO].items()}
+    horario_json = json.dumps(horario)
     return SectionDTO(
         id_curso=section[c.ID_CURSO],
         seccion=section[c.SECCION],
@@ -47,6 +50,6 @@ def mapSectionToDTO(section: Section) -> SectionDTO:
         profesor=section[c.PROFESOR],
         campus=section[c.CAMPUS],
         en_ingles=section[c.EN_INGLES],
-        horario=section[c.HORARIO],
+        horario=horario_json,
         formato=section[c.FORMATO],
     )

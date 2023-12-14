@@ -17,5 +17,5 @@ class SectionDTO(TypedDict):
     profesor: str
     campus: str
     en_ingles: bool
-    horario: dict
+    horario: str
     formato: str

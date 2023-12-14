@@ -1,16 +1,15 @@
 import mysql.connector
 import database.constants as c
-import database.sample_data as s
-
+import constants as gc
 
 class Database:
     # Conexión y cursor
-    def __init__(self, **kwargs):
-        self.conector = mysql.connector.connect(**kwargs)
+    def __init__(self):
+        self.conector = mysql.connector.connect(**c.DATABASE_CREDENTIALS)
         self.cursor = self.conector.cursor()
-        self.host = kwargs["host"]
-        self.usuario = kwargs["user"]
-        self.contrasena = kwargs["password"]
+        self.host = c.DATABASE_CREDENTIALS["host"]
+        self.usuario = c.DATABASE_CREDENTIALS["user"]
+        self.contrasena = c.DATABASE_CREDENTIALS["password"]
         self.conexion_cerrada = False
         # Avisa de que se abrió la conexión con el servidor
         print("Se abrió la conexión con el servidor.")
@@ -36,7 +35,8 @@ class Database:
                     self.conexion_cerrada = False
                     print("Se abrió la conexión con el servidor.")
                 # Se llama a la función externa
-                funcion_parametro(self, *args, **kwargs)  # type: ignore
+                result = funcion_parametro(self, *args, **kwargs)  # type: ignore
+                return result
             except Exception as e:
                 # Se informa de un error en la llamada
                 print("Ocurrió un error con la llamada.")
@@ -110,7 +110,7 @@ class Database:
             # Se itera la lista que se le pasa como argumento (cada diccionario)
             for columna in columnas:
                 # formamos el string con nombre, tipo y longitud
-                if columna["type"].lower() in ["bool", "boolean"]:
+                if columna["type"].lower() in ["bool", "boolean", "json"]:
                     columnas_string += f"{columna['name']} {columna['type']}"
                 else:
                     columnas_string += (
@@ -174,17 +174,21 @@ class Database:
 
     # Método para insertar registros en una tabla
     @conexion
-    def insertar_registro(self, nombre_bd, nombre_tabla, registros):
+    def insertar_registro(self, nombre_bd, nombre_tabla, registros) -> list[int]:
         self.cursor.execute(f"USE {nombre_bd}")
 
         if not registros:  # Si la lista está vacía
             print("La lista de registro está vacía.")
-            return
+            return []
 
         # Obtener las columnas del primer registro
         columnas = list(registros[0].keys())
+        if gc.ID in columnas:
+            columnas.remove(gc.ID)
         columnas_string = ", ".join(columnas)
 
+        inserted_ids = []
+        
         # Crear una lista de strings de valores para cada registro
         for registro in registros:
             valores = [registro[columna] for columna in columnas]
@@ -192,14 +196,19 @@ class Database:
 
             # Crear la instrucción de inserción
             sql = f"INSERT INTO {nombre_tabla} ({columnas_string}) VALUES ({valores_string})"
+            print(sql)
             try:
                 self.cursor.execute(sql)
                 self.conector.commit()
+                inserted_id = self.cursor.lastrowid
+                print(f"Inserción exitosa. ID: {inserted_id}")
+                inserted_ids.append(inserted_id)
                 print(f"Registro {registro} añadido a la tabla.")
             except Exception as e:
                 print(
                     f"Ocurrió un error al intentar insertar el registro {registro}:\n {e}"
                 )
+        return inserted_ids
 
     def crear_dependencias(self):
         self.crear_bd(c.DATABASE_NAME)
@@ -208,7 +217,4 @@ class Database:
 
 
 if __name__ == "__main__":
-    # Conectar a la base de datos y añaadir los registros de prueba
-    bd = Database(**c.DATABASE_CREDENTIALS)
-    bd.insertar_registro(c.DATABASE_NAME, c.TABLA_CURSOS, s.SAMPLE_CURSOS)
-    bd.insertar_registro(c.DATABASE_NAME, c.TABLA_SECCIONES, s.SAMPLE_SECCIONES)
+    bd = Database()
