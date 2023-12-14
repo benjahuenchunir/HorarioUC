@@ -1,6 +1,6 @@
-from database.tables import CourseDTO, SectionDTO
-from scraper.models import Course, Section
-import constants as c
+from backend.database.tables import CourseDTO, SectionDTO
+from backend.scraper.models import Course, Section
+import global_constants as c
 import json
 
 def mapCourseToModel(course: CourseDTO, secciones: list[SectionDTO]) -> Course:
@@ -18,17 +18,16 @@ def mapCourseToModel(course: CourseDTO, secciones: list[SectionDTO]) -> Course:
 
 def mapSectionToModel(section: SectionDTO) -> Section:
     return Section(
-        id_curso=section[c.ID_CURSO],
         seccion=section[c.SECCION],
         nrc=section[c.NRC],
         profesor=section[c.PROFESOR],
         campus=section[c.CAMPUS],
         en_ingles=section[c.EN_INGLES],
-        horario=section[c.HORARIO],
+        horario=json.loads(section[c.HORARIO]),
         formato=section[c.FORMATO],
     )
 
-def mapCourseToDTO(course: Course) -> tuple[CourseDTO, list[SectionDTO]]:
+def mapCourseToDTO(course: Course) -> CourseDTO:
     return CourseDTO(
         id=course[c.ID],
         sigla=course[c.SIGLA],
@@ -38,13 +37,13 @@ def mapCourseToDTO(course: Course) -> tuple[CourseDTO, list[SectionDTO]]:
         area=course[c.AREA],
         creditos=course[c.CREDITOS],
         descripcion=course[c.DESCRIPCION]
-    ), [mapSectionToDTO(section) for section in course[c.SECCIONES]]
+    )
 
-def mapSectionToDTO(section: Section) -> SectionDTO:
+def mapSectionToDTO(section: Section, course_id: int) -> SectionDTO:
     horario = {k: list(v) for k, v in section[c.HORARIO].items()}
     horario_json = json.dumps(horario)
     return SectionDTO(
-        id_curso=section[c.ID_CURSO],
+        id_curso=course_id,
         seccion=section[c.SECCION],
         nrc=section[c.NRC],
         profesor=section[c.PROFESOR],
@@ -53,3 +52,6 @@ def mapSectionToDTO(section: Section) -> SectionDTO:
         horario=horario_json,
         formato=section[c.FORMATO],
     )
+
+def mapSectionsToDTO(sections: list[Section], course_id: int) -> list[SectionDTO]:
+    return [mapSectionToDTO(section, course_id) for section in sections]

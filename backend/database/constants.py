@@ -1,11 +1,12 @@
-import constants as c
+import global_constants as c
 
+DATABASE_NAME = "horario_uc"
 DATABASE_CREDENTIALS = {
     "host": "localhost",
     "user": "root",
     "password": "",
+    "database": DATABASE_NAME
 }
-DATABASE_NAME = "horario_uc"
 
 TABLA_CURSOS = "cursos"
 TABLA_SECCIONES = "secciones"

@@ -2,8 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 from collections import defaultdict
 from icecream import ic
-from scraper.models import Course, Section
-import constants as c
+from backend.scraper.models import Course, Section
+import global_constants as c
 
 class Scraper:
     def __init__(self):
@@ -82,7 +82,6 @@ class Scraper:
                 )
             courses[sigla][c.SECCIONES].append(
                 Section(
-                    id_curso=-1,
                     seccion=section,
                     nrc=nrc,
                     profesor=teacher,

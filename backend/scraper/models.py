@@ -1,7 +1,6 @@
 from typing import TypedDict
 
 class Section(TypedDict):
-    id_curso: int
     seccion: int
     nrc: int
     profesor: str
