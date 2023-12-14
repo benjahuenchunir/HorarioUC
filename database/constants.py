@@ -1,11 +1,18 @@
-DATABASE = "horario_uc"
+import constants as c
+
+DATABASE_CREDENTIALS = {
+    "host": "localhost",
+    "user": "root",
+    "password": "",
+}
+DATABASE_NAME = "horario_uc"
 
 TABLA_CURSOS = "cursos"
 TABLA_SECCIONES = "secciones"
 
 COLUMNAS_CURSOS = [
     {
-        "name": "id",
+        "name": c.ID,
         "type": "INT",
         "length": 10,
         "primary_key": True,
@@ -13,58 +20,52 @@ COLUMNAS_CURSOS = [
         "not_null": True,
     },
     {
-        "name": "sigla",
+        "name": c.SIGLA,
         "type": "VARCHAR",
         "length": 11,
         "not_null": True,
         "unique": True,
     },
     {
-        "name": "nombre",
+        "name": c.NOMBRE,
         "type": "VARCHAR",
         "length": 200,
         "not_null": True,
     },
     {
-        "name": "permite_retiro",
+        "name": c.PERMITE_RETIRO,
         "type": "BOOLEAN",
         "length": None,
         "not_null": True,
     },
     {
-        "name": "aprob_especial",
+        "name": c.APROB_ESPECIAL,
         "type": "BOOLEAN",
         "length": None,
         "not_null": True,
     },
     {
-        "name": "formato",
-        "type": "VARCHAR",
-        "length": 15,
-        "not_null": True,
-    },
-    {
-        "name": "area",
+        "name": c.AREA,
         "type": "VARCHAR",
         "length": 30,
     },
     {
-        "name": "creditos",
+        "name": c.CREDITOS,
         "type": "INT",
         "length": 2,
         "not_null": True,
     },
     {
-        "name": "descripcion",
+        "name": c.DESCRIPCION,
         "type": "VARCHAR",
         "length": 1000,
         "not_null": True,
-    }
+    },
 ]
 
 COLUMNAS_SECCIONES = [
     {
-        "name": "id_curso",
+        "name": c.ID_CURSO,
         "type": "INT",
         "length": 10,
         "primary_key": True,
@@ -72,34 +73,45 @@ COLUMNAS_SECCIONES = [
         "foreign_key": {"table": TABLA_CURSOS, "column": "id", "on_delete": "CASCADE"},
     },
     {
-        "name": "seccion",
+        "name": c.SECCION,
         "type": "INT",
         "length": 2,
         "primary_key": True,
         "not_null": True,
     },
     {
-        "name": "profesor",
+        "name": c.NRC,
+        "type": "INT",
+        "length": 10,
+        "not_null": True,  
+    },
+    {
+        "name": c.PROFESOR,
         "type": "VARCHAR",
         "length": 100,
         "not_null": True,
     },
     {
-        "name": "campus",
+        "name": c.CAMPUS,
         "type": "VARCHAR",
         "length": 30,
         "not_null": True,
     },
     {
-        "name": "en_ingles",
+        "name": c.EN_INGLES,
         "type": "BOOLEAN",
         "length": None,
         "not_null": True,
     },
     {
-        "name": "horario",
+        "name": c.FORMATO,
         "type": "VARCHAR",
-        "length": 100,
+        "length": 15,
         "not_null": True,
-    }
+    },
+    {
+        "name": c.HORARIO,
+        "type": "JSON",
+        "not_null": True,
+    },
 ]
