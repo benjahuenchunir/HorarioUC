@@ -102,6 +102,7 @@ class Logic(QWidget):
         # TODO transaction
         # Updates the database with the new course and its sections.
         self.insert_course(course, sections)
+        self.retrieve_all_courses()
         return course, sections
     
     def retrieve_ofg_area(self, area):
@@ -145,6 +146,7 @@ class Logic(QWidget):
             ... # TODO display error
         for course, sections in courses.values():
             self.insert_course(course, sections)
+        self.retrieve_all_courses()
         return courses
     
     def insert_course(self, course: CourseDTO, sections: list):

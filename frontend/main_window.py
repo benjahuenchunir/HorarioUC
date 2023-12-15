@@ -100,6 +100,7 @@ class ScheduleWindow(QWidget):
         btn_ofgs.clicked.connect(self.enviar_buscar_ofgs)
     
     def add_suggestions(self, courses: list[Course]):
+        self.txt_sigla.clear()
         self.txt_sigla.addItems([course[gc.SIGLA] for course in courses])
         self.txt_sigla.clearEditText()
 
@@ -166,7 +167,7 @@ class ScheduleWindow(QWidget):
         self.lbl_combinations.setText(f"{cantidad_combinaciones} combinaciones")
 
     def buscar_sigla(self):
-        self.senal_buscar_sigla.emit(self.txt_sigla.text())
+        self.senal_buscar_sigla.emit(self.txt_sigla.currentText())
 
     def add_course(self, course: Course):
         item = QListWidgetItem()

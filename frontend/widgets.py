@@ -1,5 +1,3 @@
-import typing
-from PyQt5 import QtCore
 from PyQt5.QtWidgets import (
     QApplication,
     QWidget,
@@ -7,16 +5,9 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QVBoxLayout,
     QHBoxLayout,
-    QTableWidget,
-    QListWidget,
-    QLineEdit,
-    QListWidgetItem,
-    QComboBox,
-    QTableWidgetItem
+    QComboBox
+    
 )
-from PyQt5.QtCore import pyqtSignal, QSize
-from PyQt5.QtGui import QColor
-import parametros as p
 import sys
 from backend.models import GroupedSection
 import global_constants as c
@@ -105,9 +96,9 @@ class CourseFilters(QWidget):
         layout_filters = QHBoxLayout()
         self.setLayout(layout_filters)
         self.qcb_campus_filter = QComboBox(self)
-        self.qcb_campus_filter.addItems(map(lambda x: x.replace("+", " "), p.CAMPUS))
+        self.qcb_campus_filter.addItems(map(lambda x: x.replace("+", " "), c.CAMPUS))
         self.qcb_credits_filter = QComboBox(self)
-        self.qcb_credits_filter.addItems(map(str, p.CREDITOS))
+        self.qcb_credits_filter.addItems(map(str, c.CREDITOS))
         layout_filters.addWidget(self.qcb_campus_filter)
         layout_filters.addWidget(self.qcb_credits_filter)
 
@@ -124,7 +115,5 @@ if __name__ == "__main__":
     sys.__excepthook__ = hook
 
     app = QApplication(sys.argv)
-    main = OFGWindow()
-    main.show()
 
     sys.exit(app.exec())
