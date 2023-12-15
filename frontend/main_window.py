@@ -14,21 +14,21 @@ from PyQt5.QtWidgets import (
     QTableWidget,
     QTableWidgetItem,
     QApplication,
+    QAbstractItemView
 )
 from icecream import ic
-from PyQt5.QtCore import pyqtSignal, QSize
+from PyQt5.QtCore import pyqtSignal, QSize, Qt
 from PyQt5.QtGui import QColor
 from frontend.widgets import (
     CourseFilters,
     CourseListElement,
     CourseInfoListElement,
-    DoubleLineWidget,
+    DoubleLineWidget
 )
 from backend.models import GroupedSection
 import frontend.constants as c
 import global_constants as gc
 from backend.models import Course
-
 
 class ScheduleWindow(QWidget):
     senal_buscar_sigla = pyqtSignal(str)
@@ -45,6 +45,9 @@ class ScheduleWindow(QWidget):
         layout = QVBoxLayout()
         self.setLayout(layout)
 
+        # TODO toggle dark mode
+        self.setStyleSheet(c.DARK_MODE)
+        
         filters = CourseFilters(self.senal_cambiar_campus, self.senal_cambiar_creditos)
         layout.addWidget(filters)
 
@@ -57,6 +60,7 @@ class ScheduleWindow(QWidget):
 
         self.list_courses = QListWidget(self)
         self.lbl_combinations = QLabel("0", self)
+        self.lbl_combinations.setStyleSheet("background-color: #2b2b2b;")
         layout.addWidget(self.list_courses)
         layout.addWidget(self.lbl_combinations)
 
@@ -64,6 +68,8 @@ class ScheduleWindow(QWidget):
         self.btn_previous = QPushButton("Anterior", self)
         self.btn_previous.setEnabled(False)
         self.lbl_current_index = QLabel("0", self)
+        self.lbl_current_index.setAlignment(Qt.AlignCenter)
+        self.lbl_current_index.setStyleSheet("background-color: #2b2b2b;")
         self.btn_next = QPushButton("Siguiente", self)
         self.btn_next.setEnabled(False)
         layout_btn.addWidget(self.btn_previous)
@@ -77,7 +83,8 @@ class ScheduleWindow(QWidget):
         self.tb_schedule.setRowHeight(4, 1)
         self.tb_schedule.setVerticalHeaderLabels(c.H_LABELS_HORARIO)
         self.tb_schedule.setHorizontalHeaderLabels(c.DIAS.keys())
-        self.set_lunch_line(4, QColor(224, 224, 224))
+        self.tb_schedule.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.set_lunch_line(4)
         self.list_current_courses = QListWidget(self)
         layout_courses.addWidget(self.tb_schedule)
         layout_courses.addWidget(self.list_current_courses)
@@ -88,30 +95,20 @@ class ScheduleWindow(QWidget):
         self.btn_add.clicked.connect(self.buscar_sigla)
         btn_ofgs.clicked.connect(self.enviar_buscar_ofgs)
 
-    def set_lunch_line(self, rowIndex, color):
+    def set_lunch_line(self, rowIndex):
+        color = QColor("#5a5a5a")
         for j in range(self.tb_schedule.columnCount()):
             self.tb_schedule.setItem(rowIndex, j, QTableWidgetItem())
             self.tb_schedule.item(rowIndex, j).setBackground(color)
 
-    def add_course_schedule(self, course: GroupedSection):
-        self.add_item(
-            course[gc.SIGLA],
-            course[gc.SECCIONES],
-            course[gc.HORARIO][c.SIGLA_CATEDRA].items(),
-            c.COLORES[c.SIGLA_CATEDRA],
-        )
-        self.add_item(
-            course[gc.SIGLA],
-            course[gc.SECCIONES],
-            course[gc.HORARIO][c.SIGLA_AYUDANTIA].items(),
-            c.COLORES[c.SIGLA_AYUDANTIA],
-        )
-        self.add_item(
-            course[gc.SIGLA], course[gc.SECCIONES], course[gc.HORARIO][c.SIGLA_LAB].items(), c.COLORES[c.SIGLA_LAB]
-        )
-        self.add_item(
-            course[gc.SIGLA], course[gc.SECCIONES], course[gc.HORARIO][c.SIGLA_TALLER].items(), c.COLORES[c.SIGLA_TALLER]
-        )
+    def add_course_schedule(self, course):
+        for sigla_type in [c.SIGLA_CATEDRA, c.SIGLA_AYUDANTIA, c.SIGLA_LAB, c.SIGLA_TALLER]:
+            self.add_item(
+                course[gc.SIGLA],
+                course[gc.SECCIONES],
+                course[gc.HORARIO][sigla_type].items(),
+                c.COLORES[sigla_type],
+            )
 
     def add_item(self, course_id, sections, items, color):
         sections = [str(section) for section in sections]
@@ -119,18 +116,18 @@ class ScheduleWindow(QWidget):
             for modulo in modulos:
                 if modulo <= 4:
                     modulo -= 1
-                if self.tb_schedule.cellWidget(modulo, c.DIAS[dia]):
-                    self.tb_schedule.cellWidget(modulo, c.DIAS[dia]).addLabel(
-                        f"{course_id}-{','.join(sections)}", color
-                    )
+                cell_widget = self.tb_schedule.cellWidget(modulo, c.DIAS[dia])
+                label = f"{course_id}-{','.join(sections)}"
+                if cell_widget:
+                    cell_widget.addLabel(label, color)
                 else:
-                    item = DoubleLineWidget(f"{course_id}-{','.join(sections)}", color)
+                    item = DoubleLineWidget(label, color)
                     self.tb_schedule.setCellWidget(modulo, c.DIAS[dia], item)
 
     def update_schedule(self, combinacion: list[GroupedSection]):
         self.list_current_courses.clear()
         self.tb_schedule.clearContents()
-        self.set_lunch_line(4, QColor(224, 224, 224))
+        self.set_lunch_line(4)
         for course in combinacion:
             self.add_course_schedule(course)
             item = QListWidgetItem()

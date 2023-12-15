@@ -31,8 +31,8 @@ class Logic(QWidget):
         self.secciones: dict[int, int] = {} # dict for storing the selected sections of each course
         self.combinaciones: list = []
         self.__current_course_index = 0
-        self.tope_lab = True
-        self.tope_ayudantia = True
+        self.tope_lab = False
+        self.tope_ayudantia = False
 
     
     @property
@@ -49,7 +49,8 @@ class Logic(QWidget):
         """
         if sigla_curso == "":
             return
-        if any(sigla_curso.upper() == course[c.SIGLA].upper() for course in self.cursos.values()):
+        sigla_curso = sigla_curso.upper()
+        if any(sigla_curso == course[c.SIGLA].upper() for course in self.cursos.values()):
             return
         print("Buscando curso en la base de datos: ", sigla_curso, "...")
         resultado = self.db.recuperar_curso(sigla_curso)
@@ -160,8 +161,6 @@ class Logic(QWidget):
     
     def filter_course_section(self, course_id, seccion):
         self.secciones[course_id] = seccion
-        print(course_id, seccion)
-        print(len(self.cursos[course_id][c.SECCIONES]))
         if len(self.cursos[course_id][c.SECCIONES]) != 1:
             self.new_schedule()
     
@@ -173,7 +172,7 @@ class Logic(QWidget):
 
     def increase_index(self):
         self.current_course_index += 1
-        self.senal_update_index.emit(self.current_course_index)
+        self.senal_update_index.emit(self.current_course_index + 1)
         if self.current_course_index == len(self.combinaciones) - 1:
             self.senal_change_next_btn_state.emit(False)
         self.senal_update_schedule.emit(self.combinaciones[self.current_course_index])
@@ -181,7 +180,7 @@ class Logic(QWidget):
     
     def decrease_index(self):
         self.current_course_index -= 1
-        self.senal_update_index.emit(self.current_course_index)
+        self.senal_update_index.emit(self.current_course_index + 1)
         if self.current_course_index == 0:
             self.senal_change_prev_btn_state.emit(False)
         self.senal_update_schedule.emit(self.combinaciones[self.current_course_index])

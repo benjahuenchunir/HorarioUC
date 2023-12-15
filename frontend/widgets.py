@@ -33,14 +33,14 @@ class DoubleLineWidget(QWidget):
         self.setStyleSheet("padding :4px")
         self.main_layout = QVBoxLayout()
         label1 = QLabel(text)
-        label1.setStyleSheet(f"background-color: {color}")
+        label1.setStyleSheet(f"background-color: {color}; font-weight: bold")
         self.main_layout.addWidget(label1)
         self.setLayout(self.main_layout)
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         
     def addLabel(self, text, color):
         label = QLabel(text)
-        label.setStyleSheet(f"background-color: {color}")
+        label.setStyleSheet(f"background-color: {color}; font-weight: bold")
         self.main_layout.addWidget(label)
 
 

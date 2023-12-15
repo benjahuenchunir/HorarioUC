@@ -48,3 +48,103 @@ CREDITOS_5 = 5
 
 CAMPUS = [TODOS, SAN_JOAQUIN, CASA_CENTRAL]
 CREDITOS = [TODOS, CREDITOS_10, CREDITOS_5]
+
+LIGHT_MODE = """
+            QWidget {
+                font-family: Arial;
+                font-size: 12px;
+                background-color: #F0F0F0;
+            }
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                padding: 15px 32px;
+                text-align: center;
+                text-decoration: none;
+                font-size: 16px;
+                margin: 4px 2px;
+                border-radius: 10px;
+            }
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+            QLineEdit {
+                border: 2px solid gray;
+                border-radius: 10px;
+                padding: 0 8px;
+                background: white;
+                selection-background-color: darkgray;
+            }
+            QListWidget {
+                background: white;
+                border: 2px solid gray;
+                border-radius: 10px;
+            }
+            QTableWidget {
+                background: white;
+                border: 2px solid gray;
+                border-radius: 10px;
+            }
+            
+        """
+
+DARK_MODE = """
+            QWidget {
+                font-family: Arial;
+                font-size: 12px;
+                background-color: #2b2b2b;
+                color: #ffffff;
+            }
+            QPushButton {
+                background-color: #3a3a3a;
+                color: #ffffff;
+                border: 1px solid #5a5a5a;
+                padding: 15px 32px;
+                text-align: center;
+                text-decoration: none;
+                font-size: 16px;
+                margin: 4px 2px;
+                border-radius: 10px;
+            }
+            QPushButton:hover {
+                background-color: #5a5a5a;
+            }
+            QPushButton:disabled {
+                background-color: #2b2b2b;
+                color: #5a5a5a;
+            }
+            QLineEdit {
+                border: 2px solid #5a5a5a;
+                border-radius: 10px;
+                padding: 0 8px;
+                background: #3a3a3a;
+                color: #ffffff;
+                selection-background-color: #6a6a6a;
+            }
+            QListWidget {
+                background: #3a3a3a;
+                border: 2px solid #5a5a5a;
+                border-radius: 10px;
+                color: #ffffff;
+            }
+            QTableWidget {
+                background: #3a3a3a;
+                border: 2px solid #5a5a5a;
+                border-radius: 10px;
+                color: #ffffff;
+            }
+            QLabel {
+                background-color: #3a3a3a;
+            }
+            QHeaderView::section {
+                background-color: #3a3a3a;
+                color: #ffffff;
+                border: 1px solid #5a5a5a;
+                padding: 4px;
+            }
+            QTableCornerButton::section {
+                background-color: #3a3a3a;
+                border: 1px solid #5a5a5a;
+            }
+        """

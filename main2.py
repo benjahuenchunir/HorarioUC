@@ -37,5 +37,6 @@ if __name__ == "__main__":
     horario = HorarioUC()
     horario.frontend.show()
     horario.backend.retrieve_course("IIC1005")
-
+    horario.backend.retrieve_course("MAT1630")
+    
     sys.exit(app.exec())
