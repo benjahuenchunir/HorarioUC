@@ -15,6 +15,7 @@ from PyQt5.QtWidgets import (
     QTableWidgetItem,
     QApplication,
 )
+from icecream import ic
 from PyQt5.QtCore import pyqtSignal, QSize
 from PyQt5.QtGui import QColor
 from frontend.widgets import (
@@ -23,6 +24,7 @@ from frontend.widgets import (
     CourseInfoListElement,
     DoubleLineWidget,
 )
+from backend.models import GroupedSection
 import frontend.constants as c
 import global_constants as gc
 from backend.models import Course
@@ -54,14 +56,14 @@ class ScheduleWindow(QWidget):
         layout.addLayout(layout_add)
 
         self.list_courses = QListWidget(self)
-        self.lbl_combinations = QLabel(self)
+        self.lbl_combinations = QLabel("0", self)
         layout.addWidget(self.list_courses)
         layout.addWidget(self.lbl_combinations)
 
         layout_btn = QHBoxLayout()
         self.btn_previous = QPushButton("Anterior", self)
         self.btn_previous.setEnabled(False)
-        self.lbl_current_index = QLabel(self)
+        self.lbl_current_index = QLabel("0", self)
         self.btn_next = QPushButton("Siguiente", self)
         self.btn_next.setEnabled(False)
         layout_btn.addWidget(self.btn_previous)
@@ -83,11 +85,7 @@ class ScheduleWindow(QWidget):
         btn_ofgs = QPushButton("Buscar OFGs", self)
         layout.addWidget(btn_ofgs)
 
-        # self.update_current_index_label()
-        self.update_combinations_label()
         self.btn_add.clicked.connect(self.buscar_sigla)
-        self.btn_next.clicked.connect(self.increase_current_index)
-        self.btn_previous.clicked.connect(self.decrease_current_index)
         btn_ofgs.clicked.connect(self.enviar_buscar_ofgs)
 
     def set_lunch_line(self, rowIndex, color):
@@ -95,27 +93,28 @@ class ScheduleWindow(QWidget):
             self.tb_schedule.setItem(rowIndex, j, QTableWidgetItem())
             self.tb_schedule.item(rowIndex, j).setBackground(color)
 
-    def add_course_schedule(self, course):
+    def add_course_schedule(self, course: GroupedSection):
         self.add_item(
-            course.id,
-            course.sections,
-            course.catedra.items(),
+            course[gc.SIGLA],
+            course[gc.SECCIONES],
+            course[gc.HORARIO][c.SIGLA_CATEDRA].items(),
             c.COLORES[c.SIGLA_CATEDRA],
         )
         self.add_item(
-            course.id,
-            course.sections,
-            course.ayudantia.items(),
+            course[gc.SIGLA],
+            course[gc.SECCIONES],
+            course[gc.HORARIO][c.SIGLA_AYUDANTIA].items(),
             c.COLORES[c.SIGLA_AYUDANTIA],
         )
         self.add_item(
-            course.id, course.sections, course.lab.items(), c.COLORES[c.SIGLA_LAB]
+            course[gc.SIGLA], course[gc.SECCIONES], course[gc.HORARIO][c.SIGLA_LAB].items(), c.COLORES[c.SIGLA_LAB]
         )
         self.add_item(
-            course.id, course.sections, course.taller.items(), c.COLORES[c.SIGLA_TALLER]
+            course[gc.SIGLA], course[gc.SECCIONES], course[gc.HORARIO][c.SIGLA_TALLER].items(), c.COLORES[c.SIGLA_TALLER]
         )
 
     def add_item(self, course_id, sections, items, color):
+        sections = [str(section) for section in sections]
         for dia, modulos in items:
             for modulo in modulos:
                 if modulo <= 4:
@@ -128,27 +127,11 @@ class ScheduleWindow(QWidget):
                     item = DoubleLineWidget(f"{course_id}-{','.join(sections)}", color)
                     self.tb_schedule.setCellWidget(modulo, c.DIAS[dia], item)
 
-    def increase_current_index(self):
-        self.current_course_index += 1
-        if self.current_course_index == len(self.course_list) - 1:
-            self.btn_next.setEnabled(False)
-        self.btn_previous.setEnabled(True)
-        self.update_schedule()
-        self.update_current_index_label()
-
-    def decrease_current_index(self):
-        self.current_course_index -= 1
-        if self.current_course_index == 0:
-            self.btn_previous.setEnabled(False)
-        self.btn_next.setEnabled(True)
-        self.update_schedule()
-        self.update_current_index_label()
-
-    def update_schedule(self):
+    def update_schedule(self, combinacion: list[GroupedSection]):
         self.list_current_courses.clear()
         self.tb_schedule.clearContents()
         self.set_lunch_line(4, QColor(224, 224, 224))
-        for course in self.course_list[self.current_course_index]:
+        for course in combinacion:
             self.add_course_schedule(course)
             item = QListWidgetItem()
             item.setSizeHint(QSize(100, 80))
@@ -156,30 +139,26 @@ class ScheduleWindow(QWidget):
             self.list_current_courses.setItemWidget(
                 item,
                 CourseInfoListElement(
-                    course.id,
-                    course.name,
-                    course.sections,
-                    course.nrcs,
-                    course.teachers,
+                    course[gc.ID_CURSO],
+                    course[gc.SIGLA],
+                    course[gc.SECCIONES],
+                    course[gc.NRCS],
+                    course[gc.PROFESORES],
                 ),
             )
 
-    def new_schedule(self, combinations):
-        self.course_list = combinations
-        self.current_course_index = 0
-        # self.update_current_index_label()
-        self.update_combinations_label()
-        self.update_schedule()
+    def new_schedule(self, combination: list[GroupedSection], cantidad_combinaciones, combinacion_actual):
+        self.update_combinations_label(cantidad_combinaciones)
+        self.update_current_index_label(combinacion_actual)
+        self.update_schedule(combination)
         self.btn_previous.setEnabled(False)
-        self.btn_next.setEnabled(True)
-        if self.current_course_index == len(self.course_list) - 1:
-            self.btn_next.setEnabled(False)
+        self.btn_next.setEnabled(False)
 
-    def update_current_index_label(self):
-        self.lbl_current_index.setText(f"Combinacion {self.current_course_index + 1}")
-
-    def update_combinations_label(self):
-        self.lbl_combinations.setText(f"{len(self.course_list)} combinaciones")
+    def update_current_index_label(self, combinacion_actual):
+        self.lbl_current_index.setText(f"Combinacion {combinacion_actual}")
+    
+    def update_combinations_label(self, cantidad_combinaciones):
+        self.lbl_combinations.setText(f"{cantidad_combinaciones} combinaciones")
 
     def buscar_sigla(self):
         self.senal_buscar_sigla.emit(self.txt_sigla.text())
@@ -188,6 +167,7 @@ class ScheduleWindow(QWidget):
         item = QListWidgetItem()
         item.setSizeHint(QSize(100, 80))
         self.list_courses.addItem(item)
+        ic(course)
         self.list_courses.setItemWidget(
             item,
             CourseListElement(

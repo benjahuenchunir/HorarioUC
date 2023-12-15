@@ -45,19 +45,19 @@ class DoubleLineWidget(QWidget):
 
 
 class CourseInfoListElement(QWidget):
-    def __init__(self, id_, name, seccion, nrc, profesor):
+    def __init__(self, id_, name, secciones, nrc, profesor):
         super().__init__()
 
         hbox = QHBoxLayout()
         self.setLayout(hbox)
-        self.lbl_id = QLabel(id_, self)
+        self.lbl_id = QLabel(str(id_), self)
         hbox.addWidget(self.lbl_id)
         self.lbl_name = QLabel(name, self)
         self.lbl_name.setWordWrap(True)
         hbox.addWidget(self.lbl_name)        
-        self.lbl_seccion = QLabel("\n".join(seccion), self)
+        self.lbl_seccion = QLabel("\n".join(map(str, secciones)), self)
         hbox.addWidget(self.lbl_seccion)
-        self.lbl_nrc = QLabel("\n".join(nrc), self)
+        self.lbl_nrc = QLabel("\n".join(map(str, nrc)), self)
         hbox.addWidget(self.lbl_nrc)
         self.lbl_teacher = QLabel("\n".join(profesor), self)
         hbox.addWidget(self.lbl_teacher)

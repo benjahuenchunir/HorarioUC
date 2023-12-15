@@ -15,7 +15,12 @@ from itertools import product
 
 class Logic(QWidget):
     senal_add_course = pyqtSignal(dict)
-    senal_update_schedule = pyqtSignal(list)
+    senal_update_schedule = pyqtSignal(tuple)
+    senal_new_schedule = pyqtSignal(tuple, int, int)
+    
+    senal_change_next_btn_state = pyqtSignal(bool)
+    senal_change_prev_btn_state = pyqtSignal(bool)
+    senal_update_index = pyqtSignal(int)
 
     def __init__(self) -> None:
         super().__init__()
@@ -28,6 +33,7 @@ class Logic(QWidget):
         self.__current_course_index = 0
         self.tope_lab = True
         self.tope_ayudantia = True
+
     
     @property
     def current_course_index(self):
@@ -35,7 +41,7 @@ class Logic(QWidget):
 
     @current_course_index.setter
     def current_course_index(self, value):
-        self.__current_course_index = max(0, min(value, len(self.course_list) - 1))
+        self.__current_course_index = max(0, min(value, len(self.combinaciones) - 1))
 
     def retrieve_course(self, sigla_curso: str):
         """
@@ -63,7 +69,7 @@ class Logic(QWidget):
         ic(curso)
         self.cursos[curso[c.ID]] = curso
         self.senal_add_course.emit(curso)
-        self.generate_course_combinations()
+        self.new_schedule()
 
     def scrape_course(self, sigla) -> tuple[CourseDTO, list[SectionDTO]] | None:
         course = self.scraper.find_course_info(sigla)
@@ -91,15 +97,14 @@ class Logic(QWidget):
             if filtered_section == c.TODAS or not filtered_section:
                 filtered_courses.append(grouped_sections)
             else:
-                filtered_courses.append([section for section in grouped_sections if str(filtered_section) in section[c.SECCIONES]])
-
+                filtered_courses.append([section for section in grouped_sections if filtered_section in section[c.SECCIONES]])
+        
         # Generate all possible combinations of courses
         all_combinations = product(*filtered_courses)
         
         # Filter out the valid combinations
         valid_combinations = filter(self.are_courses_valid, all_combinations)
         self.combinaciones = list(valid_combinations)
-        # TODO emitir señal
         ic(self.combinaciones)
 
     def are_courses_valid(self, combination: list[GroupedSection]) -> bool:
@@ -146,18 +151,41 @@ class Logic(QWidget):
                             return False
         return True
     
-    def update_schedule(self):
+    def new_schedule(self):
         self.generate_course_combinations()
+        self.current_course_index = 0
+        self.senal_new_schedule.emit(self.combinaciones[self.current_course_index], len(self.combinaciones), self.current_course_index)
+        if len(self.combinaciones) > 1:
+            self.senal_change_next_btn_state.emit(True)
     
     def filter_course_section(self, course_id, seccion):
         self.secciones[course_id] = seccion
-        self.update_schedule()
+        print(course_id, seccion)
+        print(len(self.cursos[course_id][c.SECCIONES]))
+        if len(self.cursos[course_id][c.SECCIONES]) != 1:
+            self.new_schedule()
     
     def delete_course(self, course_id):
         del self.cursos[course_id]
         if course_id in self.secciones:
             del self.secciones[course_id]
-        self.update_schedule()
+        self.new_schedule()
+
+    def increase_index(self):
+        self.current_course_index += 1
+        self.senal_update_index.emit(self.current_course_index)
+        if self.current_course_index == len(self.combinaciones) - 1:
+            self.senal_change_next_btn_state.emit(False)
+        self.senal_update_schedule.emit(self.combinaciones[self.current_course_index])
+        self.senal_change_prev_btn_state.emit(True)
+    
+    def decrease_index(self):
+        self.current_course_index -= 1
+        self.senal_update_index.emit(self.current_course_index)
+        if self.current_course_index == 0:
+            self.senal_change_prev_btn_state.emit(False)
+        self.senal_update_schedule.emit(self.combinaciones[self.current_course_index])
+        self.senal_change_next_btn_state.emit(True)
 
 
 if __name__ == "__main__":
