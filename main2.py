@@ -1,5 +1,6 @@
 from backend.logic import Logic
 from frontend.main_window import ScheduleWindow
+from frontend.ofg_window import OFGWindow
 import sys
 from PyQt5.QtWidgets import QApplication
 
@@ -7,24 +8,35 @@ class HorarioUC:
     def __init__(self) -> None:
         super().__init__()
         self.backend = Logic()
-        self.frontend = ScheduleWindow()
-        self.conectar_senales()
+        self.schedule_window = ScheduleWindow()
+        self.ofg_window = OFGWindow()
+        self.conectar_senales_schedule()
+        self.conectar_senales_ofg()
         self.backend.retrieve_all_courses()
+        self.schedule_window.show()
     
-    def conectar_senales(self):
-        self.backend.senal_enviar_cursos.connect(self.frontend.add_suggestions)
-        self.frontend.senal_buscar_sigla.connect(self.backend.retrieve_course)
-        self.backend.senal_add_course.connect(self.frontend.add_course)
-        self.frontend.senal_cambiar_seccion.connect(self.backend.filter_course_section)
-        self.frontend.senal_borrar_curso.connect(self.backend.delete_course)
-        self.frontend.senal_borrar_curso.connect(self.frontend.delete_course)
-        self.backend.senal_new_schedule.connect(self.frontend.new_schedule)
-        self.backend.senal_update_schedule.connect(self.frontend.update_schedule)
-        self.frontend.btn_next.clicked.connect(self.backend.increase_index)
-        self.backend.senal_change_next_btn_state.connect(lambda x: self.frontend.btn_next.setEnabled(x))
-        self.frontend.btn_previous.clicked.connect(self.backend.decrease_index)
-        self.backend.senal_change_prev_btn_state.connect(lambda x: self.frontend.btn_previous.setEnabled(x))
-        self.backend.senal_update_index.connect(self.frontend.update_current_index_label)
+    def conectar_senales_schedule(self):
+        self.backend.senal_enviar_cursos.connect(self.schedule_window.add_suggestions)
+        self.schedule_window.senal_buscar_sigla.connect(self.backend.retrieve_course)
+        self.backend.senal_add_course.connect(self.schedule_window.add_course)
+        self.schedule_window.senal_cambiar_seccion.connect(self.backend.filter_course_section)
+        self.schedule_window.senal_borrar_curso.connect(self.backend.delete_course)
+        self.schedule_window.senal_borrar_curso.connect(self.schedule_window.delete_course)
+        self.backend.senal_new_schedule.connect(self.schedule_window.new_schedule)
+        self.backend.senal_update_schedule.connect(self.schedule_window.update_schedule)
+        self.schedule_window.btn_next.clicked.connect(self.backend.increase_index)
+        self.backend.senal_change_next_btn_state.connect(lambda x: self.schedule_window.btn_next.setEnabled(x))
+        self.schedule_window.btn_previous.clicked.connect(self.backend.decrease_index)
+        self.backend.senal_change_prev_btn_state.connect(lambda x: self.schedule_window.btn_previous.setEnabled(x))
+        self.backend.senal_update_index.connect(self.schedule_window.update_current_index_label)
+        self.schedule_window.senal_buscar_ofgs.connect(self.change_to_ofgs)
+    
+    def conectar_senales_ofg(self):
+        self.ofg_window.senal_cambiar_area.connect(self.backend.retrieve_ofg_area)
+    
+    def change_to_ofgs(self):
+        self.schedule_window.hide()
+        self.ofg_window.iniciar()
         
 
 if __name__ == "__main__":
@@ -37,7 +49,6 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     
     horario = HorarioUC()
-    horario.frontend.show()
     horario.backend.retrieve_course("IIC1005")
     horario.backend.retrieve_course("MAT1630")
     

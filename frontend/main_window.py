@@ -35,7 +35,7 @@ class ScheduleWindow(QWidget):
     senal_buscar_sigla = pyqtSignal(str)
     senal_borrar_curso = pyqtSignal(int)
     senal_cambiar_seccion = pyqtSignal(int, int)
-    senal_buscar_ofgs = pyqtSignal(tuple)
+    senal_buscar_ofgs = pyqtSignal()
     senal_cambiar_campus = pyqtSignal(str)
     senal_cambiar_creditos = pyqtSignal(str)
 
@@ -195,7 +195,7 @@ class ScheduleWindow(QWidget):
                 break
 
     def enviar_buscar_ofgs(self):
-        self.senal_buscar_ofgs.emit(self.course_list[self.current_course_index])
+        self.senal_buscar_ofgs.emit()
 
 
 if __name__ == "__main__":

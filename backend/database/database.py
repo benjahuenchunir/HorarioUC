@@ -195,6 +195,11 @@ class Database:
         sql = f"SELECT * FROM {c.TABLA_SECCIONES} WHERE {gc.ID_CURSO} = {id_curso}"
         resultado = self.consulta(sql)
         return resultado
+    
+    def recuperar_ofgs(self, area: str) -> list[CourseDTO]:
+        sql = f"SELECT * FROM {c.TABLA_CURSOS} WHERE {gc.AREA} = '{area}'"
+        resultado = self.consulta(sql)
+        return resultado
 
 
 if __name__ == "__main__":

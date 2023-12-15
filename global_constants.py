@@ -28,3 +28,24 @@ SIGLA_AYUDANTIA = "AYU"
 SIGLA_TALLER = "TAL"
 
 TODAS = 0
+
+ARTES = "Artes"
+CSOC = "Ciencias sociales"
+CTEC = "Ciencia y tecnologia"
+EISU = "Ecologia y sustentabilidad"
+FFIL = "Formacion filosofica"
+FTEO = "Formacion teologica"
+HUMS = "Humanidades"
+PMAT = "Pensamiento matematico"
+SBIE = "Salud y bienestar"
+OFG = {
+    ARTES: "ARTS",
+    CSOC: "CSOC",
+    CTEC: "CTEC",
+    EISU: "EISU",
+    FFIL: "FFIL",
+    FTEO: "FTEO",
+    HUMS: "HUMS",
+    PMAT: "PMAT",
+    SBIE: "SBIE",
+}

@@ -18,27 +18,6 @@ COLORES = {
     SIGLA_AYUDANTIA: "#99CC99",
     SIGLA_TALLER: "#C7C2F8",
 }
-ARTES = "Artes"
-CSOC = "Ciencias sociales"
-CTEC = "Ciencia y tecnologia"
-EISU = "Ecologia y sustentabilidad"
-FFIL = "Formacion filosofica"
-FTEO = "Formacion teologica"
-HUMS = "Humanidades"
-PMAT = "Pensamiento matematico"
-SBIE = "Salud y bienestar"
-
-OFG = {
-    ARTES: "ARTS",
-    CSOC: "CSOC",
-    CTEC: "CTEC",
-    EISU: "EISU",
-    FFIL: "FFIL",
-    FTEO: "FTEO",
-    HUMS: "HUMS",
-    PMAT: "PMAT",
-    SBIE: "SBIE",
-}
 
 TODOS = "TODOS"
 SAN_JOAQUIN = "San+Joaquín"
