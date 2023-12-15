@@ -2,7 +2,7 @@
 
 Esta es una herramienta que facilita la toma de ramos generando todas las combinaciones posibles segun ciertos parametros (tipos de tope permitido, campus, profesor, formato, etc).
 
-Además permite visualzar todos los ofgs de un area que calzan con una cierta combinación de ramos.
+Además permite visualizar todos los ofgs de un area que calzan con una cierta combinación de ramos.
 
 ## Estructura
 

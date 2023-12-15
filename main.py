@@ -45,7 +45,8 @@ class HorarioUC:
     def change_to_ofgs(self):
         self.schedule_window.hide()
         self.ofg_window.iniciar()
-        self.ofg_window.new_schedule(self.backend.combinaciones[self.backend.current_course_index], 0, 0)
+        if self.backend.combinaciones:
+            self.ofg_window.new_schedule(self.backend.combinaciones[self.backend.current_course_index], 0, 0)
         
 
 if __name__ == "__main__":

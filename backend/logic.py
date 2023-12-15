@@ -127,12 +127,14 @@ class Logic(QWidget):
             combinaciones = self.generate_course_combinations(self.current_combination + [ofg])
             self.ofg_combinations.extend(combinaciones)
         self.current_ofg_combination_index = 0
-        self.senal_new_schedule_ofg.emit(self.ofg_combinations[self.current_ofg_combination_index], len(self.ofg_combinations), self.current_ofg_combination_index)
+        self.senal_new_schedule_ofg.emit(self.ofg_combinations[self.current_ofg_combination_index], len(self.ofg_combinations), self.current_ofg_combination_index + 1)
         if len(self.ofg_combinations) > 1:
             self.senal_change_next_btn_state_ofg.emit(True)
     
     def save_current_combination(self):
         self.current_combination.clear()
+        if not self.combinaciones:
+            return
         for groupedSection in self.combinaciones[self.current_course_index]:
             curso = self.cursos[groupedSection[c.ID_CURSO]].copy()
             curso[c.SECCIONES] = [groupedSection]
