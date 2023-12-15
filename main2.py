@@ -33,10 +33,19 @@ class HorarioUC:
     
     def conectar_senales_ofg(self):
         self.ofg_window.senal_cambiar_area.connect(self.backend.retrieve_ofg_area)
+        self.ofg_window.btn_back.clicked.connect(lambda: self.ofg_window.hide() or self.schedule_window.show())
+        self.ofg_window.btn_next.clicked.connect(self.backend.increase_ofg_index)
+        self.backend.senal_change_next_btn_state_ofg.connect(lambda x: self.ofg_window.btn_next.setEnabled(x))
+        self.ofg_window.btn_previous.clicked.connect(self.backend.decrease_ofg_index)
+        self.backend.senal_change_prev_btn_state_ofg.connect(lambda x: self.ofg_window.btn_previous.setEnabled(x))
+        self.backend.senal_update_index_ofg.connect(self.ofg_window.update_current_index_label)
+        self.backend.senal_new_schedule_ofg.connect(self.ofg_window.new_schedule)
+        self.backend.senal_update_schedule_ofg.connect(self.ofg_window.update_schedule)
     
     def change_to_ofgs(self):
         self.schedule_window.hide()
         self.ofg_window.iniciar()
+        self.ofg_window.new_schedule(self.backend.combinaciones[self.backend.current_course_index], 0, 0)
         
 
 if __name__ == "__main__":

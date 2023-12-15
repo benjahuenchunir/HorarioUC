@@ -19,10 +19,15 @@ class Logic(QWidget):
     senal_add_course = pyqtSignal(dict)
     senal_update_schedule = pyqtSignal(tuple)
     senal_new_schedule = pyqtSignal(tuple, int, int)
-    
     senal_change_next_btn_state = pyqtSignal(bool)
     senal_change_prev_btn_state = pyqtSignal(bool)
     senal_update_index = pyqtSignal(int)
+    
+    senal_new_schedule_ofg = pyqtSignal(tuple, int, int)
+    senal_update_schedule_ofg = pyqtSignal(tuple)
+    senal_change_next_btn_state_ofg = pyqtSignal(bool)
+    senal_change_prev_btn_state_ofg = pyqtSignal(bool)
+    senal_update_index_ofg = pyqtSignal(int)
 
     def __init__(self) -> None:
         super().__init__()
@@ -100,6 +105,8 @@ class Logic(QWidget):
         return course, sections
     
     def retrieve_ofg_area(self, area):
+        if area == "-":
+            return
         self.save_current_combination()
         self.ofg_combinations.clear()
         ofgs = self.db.recuperar_ofgs(area)
@@ -118,9 +125,11 @@ class Logic(QWidget):
                 ofg_courses.append(mapCourseToModel(ofg, secciones))
         for ofg in ofg_courses:
             combinaciones = self.generate_course_combinations(self.current_combination + [ofg])
-            if combinaciones:
-                self.ofg_combinations.append(combinaciones)
-        ic(self.ofg_combinations)
+            self.ofg_combinations.extend(combinaciones)
+        self.current_ofg_combination_index = 0
+        self.senal_new_schedule_ofg.emit(self.ofg_combinations[self.current_ofg_combination_index], len(self.ofg_combinations), self.current_ofg_combination_index)
+        if len(self.ofg_combinations) > 1:
+            self.senal_change_next_btn_state_ofg.emit(True)
     
     def save_current_combination(self):
         self.current_combination.clear()
@@ -244,6 +253,22 @@ class Logic(QWidget):
             self.senal_change_prev_btn_state.emit(False)
         self.senal_update_schedule.emit(self.combinaciones[self.current_course_index])
         self.senal_change_next_btn_state.emit(True)
+    
+    def increase_ofg_index(self):
+        self.current_ofg_combination_index += 1
+        self.senal_update_index_ofg.emit(self.current_ofg_combination_index + 1)
+        if self.current_ofg_combination_index == len(self.ofg_combinations) - 1:
+            self.senal_change_next_btn_state_ofg.emit(False)
+        self.senal_update_schedule_ofg.emit(self.ofg_combinations[self.current_ofg_combination_index])
+        self.senal_change_prev_btn_state_ofg.emit(True)
+    
+    def decrease_ofg_index(self):
+        self.current_ofg_combination_index -= 1
+        self.senal_update_index_ofg.emit(self.current_ofg_combination_index + 1)
+        if self.current_ofg_combination_index == 0:
+            self.senal_change_prev_btn_state_ofg.emit(False)
+        self.senal_update_schedule_ofg.emit(self.ofg_combinations[self.current_ofg_combination_index])
+        self.senal_change_next_btn_state_ofg.emit(True)
 
 
 if __name__ == "__main__":
