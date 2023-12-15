@@ -173,7 +173,6 @@ class ScheduleWindow(QWidget):
         item = QListWidgetItem()
         item.setSizeHint(QSize(100, 80))
         self.list_courses.addItem(item)
-        ic(course)
         self.list_courses.setItemWidget(
             item,
             CourseListElement(

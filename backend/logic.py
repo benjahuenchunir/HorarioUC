@@ -88,7 +88,6 @@ class Logic(QWidget):
             print("El curso existe en la base de datos")
             secciones = self.db.recuperar_secciones(resultado[c.ID])
         curso = mapCourseToModel(resultado, secciones)
-        ic(curso)
         self.cursos[curso[c.ID]] = curso
         self.senal_add_course.emit(curso)
         self.new_schedule()
@@ -178,9 +177,6 @@ class Logic(QWidget):
     def are_courses_valid(self, combination: list[GroupedSection]) -> bool:
         schedule_per_day = {}
         for course in combination:  # Catedra con catedra
-            print(course)
-            print(course[c.HORARIO])
-            print(course[c.HORARIO][c.SIGLA_CATEDRA])
             for key, value in course[c.HORARIO][c.SIGLA_CATEDRA].items():
                 if key not in schedule_per_day:
                     schedule_per_day[key] = value.copy()
@@ -225,7 +221,7 @@ class Logic(QWidget):
     def new_schedule(self):
         self.combinaciones = self.generate_course_combinations(self.cursos.values())
         self.current_course_index = 0
-        self.senal_new_schedule.emit(self.combinaciones[self.current_course_index], len(self.combinaciones), self.current_course_index)
+        self.senal_new_schedule.emit(self.combinaciones[self.current_course_index], len(self.combinaciones), self.current_course_index + 1)
         if len(self.combinaciones) > 1:
             self.senal_change_next_btn_state.emit(True)
     

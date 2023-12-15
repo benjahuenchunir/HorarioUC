@@ -30,7 +30,6 @@ class Database:
                     )
                     self.cursor = self.conector.cursor(dictionary=True)
                     self.conexion_cerrada = False
-                    print("Se abrió la conexión con el servidor.")
                 # Se llama a la función externa
                 result = funcion_parametro(self, *args, **kwargs)  # type: ignore
                 return result
@@ -45,7 +44,6 @@ class Database:
                     # Cerramos el cursor y la conexión
                     self.cursor.close()
                     self.conector.close()
-                    print("Se cerró la conexión con el servidor.")
                     self.conexion_cerrada = True
 
         return interno
@@ -126,10 +124,7 @@ class Database:
     def consulta(self, sql) -> list:
         try:
             self.cursor.execute(sql)
-            resultado = self.cursor.fetchall()
-            print("Esta es la salida de la instrucción que has introducido:")
-            print(resultado)
-            return resultado
+            return self.cursor.fetchall()
         except Exception as e:
             print("Ocurrió un error. Revisa la instrucción SQL.")
             print(e)
@@ -193,13 +188,11 @@ class Database:
     
     def recuperar_secciones(self, id_curso: int) -> list[SectionDTO]:
         sql = f"SELECT * FROM {c.TABLA_SECCIONES} WHERE {gc.ID_CURSO} = {id_curso}"
-        resultado = self.consulta(sql)
-        return resultado
+        return self.consulta(sql)
     
     def recuperar_ofgs(self, area: str) -> list[CourseDTO]:
         sql = f"SELECT * FROM {c.TABLA_CURSOS} WHERE {gc.AREA} = '{area}'"
-        resultado = self.consulta(sql)
-        return resultado
+        return self.consulta(sql)
 
 
 if __name__ == "__main__":
