@@ -7,14 +7,15 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QPushButton,
-    QLineEdit,
+    QComboBox,
     QListWidget,
     QListWidgetItem,
     QLabel,
     QTableWidget,
     QTableWidgetItem,
     QApplication,
-    QAbstractItemView
+    QAbstractItemView,
+    QCompleter
 )
 from icecream import ic
 from PyQt5.QtCore import pyqtSignal, QSize, Qt
@@ -23,7 +24,7 @@ from frontend.widgets import (
     CourseFilters,
     CourseListElement,
     CourseInfoListElement,
-    DoubleLineWidget
+    DoubleLineWidget,
 )
 from backend.models import GroupedSection
 import frontend.constants as c
@@ -48,11 +49,15 @@ class ScheduleWindow(QWidget):
         # TODO toggle dark mode
         self.setStyleSheet(c.DARK_MODE)
         
+        # TODO implement filters
         filters = CourseFilters(self.senal_cambiar_campus, self.senal_cambiar_creditos)
         layout.addWidget(filters)
 
         layout_add = QHBoxLayout()
-        self.txt_sigla = QLineEdit(self)
+        self.txt_sigla = QComboBox(self)
+        self.txt_sigla.setEditable(True)
+        self.txt_sigla.setInsertPolicy(QComboBox.NoInsert)
+        self.txt_sigla.completer().setCompletionMode(QCompleter.PopupCompletion)
         self.btn_add = QPushButton("Agregar", self)
         layout_add.addWidget(self.txt_sigla)
         layout_add.addWidget(self.btn_add)
@@ -94,6 +99,10 @@ class ScheduleWindow(QWidget):
 
         self.btn_add.clicked.connect(self.buscar_sigla)
         btn_ofgs.clicked.connect(self.enviar_buscar_ofgs)
+    
+    def add_suggestions(self, courses: list[Course]):
+        self.txt_sigla.addItems([course[gc.SIGLA] for course in courses])
+        self.txt_sigla.clearEditText()
 
     def set_lunch_line(self, rowIndex):
         color = QColor("#5a5a5a")

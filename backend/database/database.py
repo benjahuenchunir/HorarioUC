@@ -181,6 +181,10 @@ class Database:
         self.crear_tabla(c.TABLA_CURSOS, c.COLUMNAS_CURSOS)
         self.crear_tabla(c.TABLA_SECCIONES, c.COLUMNAS_SECCIONES)
     
+    def recuperar_cursos(self) -> list[CourseDTO]:
+        sql = f"SELECT * FROM {c.TABLA_CURSOS}"
+        return self.consulta(sql)
+    
     def recuperar_curso(self, sigla: str) -> CourseDTO | None:
         sql = f"SELECT * FROM {c.TABLA_CURSOS} WHERE {gc.SIGLA} = '{sigla}'"
         resultado = self.consulta(sql)
@@ -190,7 +194,7 @@ class Database:
     def recuperar_secciones(self, id_curso: int) -> list[SectionDTO]:
         sql = f"SELECT * FROM {c.TABLA_SECCIONES} WHERE {gc.ID_CURSO} = {id_curso}"
         resultado = self.consulta(sql)
-        return [SectionDTO(**section) for section in resultado]
+        return resultado
 
 
 if __name__ == "__main__":

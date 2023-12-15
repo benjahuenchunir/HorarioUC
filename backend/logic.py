@@ -14,6 +14,7 @@ from PyQt5.QtCore import pyqtSignal
 from itertools import product
 
 class Logic(QWidget):
+    senal_enviar_cursos = pyqtSignal(list)
     senal_add_course = pyqtSignal(dict)
     senal_update_schedule = pyqtSignal(tuple)
     senal_new_schedule = pyqtSignal(tuple, int, int)
@@ -42,6 +43,17 @@ class Logic(QWidget):
     @current_course_index.setter
     def current_course_index(self, value):
         self.__current_course_index = max(0, min(value, len(self.combinaciones) - 1))
+    
+    def retrieve_all_courses(self):
+        """
+        Retrieves all the courses from the database.
+        """
+        cursos = self.db.recuperar_cursos()
+        cursos_model = []
+        for curso in cursos:
+            secciones = self.db.recuperar_secciones(curso[c.ID])
+            cursos_model.append(mapCourseToModel(curso, secciones))
+        self.senal_enviar_cursos.emit(cursos_model)
 
     def retrieve_course(self, sigla_curso: str):
         """

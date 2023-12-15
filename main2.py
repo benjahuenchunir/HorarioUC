@@ -9,8 +9,10 @@ class HorarioUC:
         self.backend = Logic()
         self.frontend = ScheduleWindow()
         self.conectar_senales()
+        self.backend.retrieve_all_courses()
     
     def conectar_senales(self):
+        self.backend.senal_enviar_cursos.connect(self.frontend.add_suggestions)
         self.frontend.senal_buscar_sigla.connect(self.backend.retrieve_course)
         self.backend.senal_add_course.connect(self.frontend.add_course)
         self.frontend.senal_cambiar_seccion.connect(self.backend.filter_course_section)

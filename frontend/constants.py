@@ -147,4 +147,9 @@ DARK_MODE = """
                 background-color: #3a3a3a;
                 border: 1px solid #5a5a5a;
             }
+            QAbstractItemView {
+                background-color: #3a3a3a;
+                color: #ffffff;
+                selection-background-color: #5a5a5a;
+            }
         """
