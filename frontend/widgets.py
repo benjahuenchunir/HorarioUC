@@ -18,7 +18,8 @@ from PyQt5.QtCore import pyqtSignal, QSize
 from PyQt5.QtGui import QColor
 import parametros as p
 import sys
-
+from backend.models import GroupedSection
+import global_constants as c
 
 class DoubleLineWidget(QWidget):
     def __init__(self, text, color):
@@ -63,13 +64,16 @@ class CourseInfoListElement(QWidget):
 
 
 class CourseListElement(QWidget):
-    def __init__(self, id_, secciones, senal_borrar_curso, senal_cambiar_seccion):
+    def __init__(self, id_curso, sigla, secciones_agrupadas: list[GroupedSection], senal_borrar_curso, senal_cambiar_seccion):
         super().__init__()
-
+        self.id_curso = id_curso
         hbox = QHBoxLayout()
         self.setLayout(hbox)
-
-        self.lbl_id = QLabel(id_, self)
+        secciones: list[tuple[int, str]] = []
+        for seccion_grupo in secciones_agrupadas:
+            for seccion, profesor in zip(seccion_grupo[c.SECCIONES], seccion_grupo[c.PROFESORES]):
+                secciones.append((seccion, profesor))
+        self.lbl_id = QLabel(sigla, self)
         hbox.addWidget(self.lbl_id)
         self.lbl_secciones = QLabel(str(len(secciones)), self)
         hbox.addWidget(self.lbl_secciones)
@@ -77,10 +81,9 @@ class CourseListElement(QWidget):
         hbox.addWidget(self.qcb_section_selection)
         self.btn_delete = QPushButton("Borrar", self)
         hbox.addWidget(self.btn_delete)
-
         self.qcb_section_selection.addItem("Todas")
-        for seccion in sorted(secciones, key=lambda x: int(x.section)):
-            self.qcb_section_selection.addItem(f"{seccion.section} - {seccion.teacher}")
+        for seccion, profesor in sorted(secciones, key=lambda x: x[0]):
+            self.qcb_section_selection.addItem(f"{seccion} - {profesor}")
 
         self.senal_cambiar_seccion = senal_cambiar_seccion
         self.senal_borrar_curso = senal_borrar_curso
@@ -88,10 +91,10 @@ class CourseListElement(QWidget):
         self.btn_delete.clicked.connect(self.borrar)
 
     def cambiar_seccion(self, indice):
-        self.senal_cambiar_seccion.emit(self.lbl_id.text(), indice)
+        self.senal_cambiar_seccion.emit(self.id_curso, indice)
 
     def borrar(self):
-        self.senal_borrar_curso.emit(self.lbl_id.text())
+        self.senal_borrar_curso.emit(self.id_curso)
 
 class CourseFilters(QWidget):
     def __init__(self, senal_campus, senal_creditos) -> None:

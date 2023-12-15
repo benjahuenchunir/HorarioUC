@@ -1,17 +1,37 @@
 import os
 import sys
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLineEdit, QListWidget, QListWidgetItem, QLabel, QTableWidget, QTableWidgetItem, QApplication
+from PyQt5.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QPushButton,
+    QLineEdit,
+    QListWidget,
+    QListWidgetItem,
+    QLabel,
+    QTableWidget,
+    QTableWidgetItem,
+    QApplication,
+)
 from PyQt5.QtCore import pyqtSignal, QSize
 from PyQt5.QtGui import QColor
-from frontend.widgets import CourseFilters, CourseListElement, CourseInfoListElement, DoubleLineWidget
+from frontend.widgets import (
+    CourseFilters,
+    CourseListElement,
+    CourseInfoListElement,
+    DoubleLineWidget,
+)
 import frontend.constants as c
 import global_constants as gc
+from backend.models import Course
+
 
 class ScheduleWindow(QWidget):
     senal_buscar_sigla = pyqtSignal(str)
-    senal_borrar_curso = pyqtSignal(str)
-    senal_cambiar_seccion = pyqtSignal(str, int)
+    senal_borrar_curso = pyqtSignal(int)
+    senal_cambiar_seccion = pyqtSignal(int, int)
     senal_buscar_ofgs = pyqtSignal(tuple)
     senal_cambiar_campus = pyqtSignal(str)
     senal_cambiar_creditos = pyqtSignal(str)
@@ -20,7 +40,6 @@ class ScheduleWindow(QWidget):
         super().__init__()
         self.setGeometry(0, 0, 1280, 720)
         self.course_list = []
-        self.__current_course_index = 0
         layout = QVBoxLayout()
         self.setLayout(layout)
 
@@ -64,20 +83,12 @@ class ScheduleWindow(QWidget):
         btn_ofgs = QPushButton("Buscar OFGs", self)
         layout.addWidget(btn_ofgs)
 
-        self.update_current_index_label()
+        # self.update_current_index_label()
         self.update_combinations_label()
         self.btn_add.clicked.connect(self.buscar_sigla)
         self.btn_next.clicked.connect(self.increase_current_index)
         self.btn_previous.clicked.connect(self.decrease_current_index)
         btn_ofgs.clicked.connect(self.enviar_buscar_ofgs)
-    
-    @property
-    def current_course_index(self):
-        return self.__current_course_index
-
-    @current_course_index.setter
-    def current_course_index(self, value):
-        self.__current_course_index = max(0, min(value, len(self.course_list) - 1))
 
     def set_lunch_line(self, rowIndex, color):
         for j in range(self.tb_schedule.columnCount()):
@@ -85,10 +96,24 @@ class ScheduleWindow(QWidget):
             self.tb_schedule.item(rowIndex, j).setBackground(color)
 
     def add_course_schedule(self, course):
-        self.add_item(course.id, course.sections, course.catedra.items(), c.COLORES[c.CATEDRA])
-        self.add_item(course.id, course.sections, course.ayudantia.items(), c.COLORES[c.AYUDANTIA])
-        self.add_item(course.id, course.sections, course.lab.items(), c.COLORES[c.LAB])
-        self.add_item(course.id, course.sections, course.taller.items(), c.COLORES[c.TALLER])
+        self.add_item(
+            course.id,
+            course.sections,
+            course.catedra.items(),
+            c.COLORES[c.SIGLA_CATEDRA],
+        )
+        self.add_item(
+            course.id,
+            course.sections,
+            course.ayudantia.items(),
+            c.COLORES[c.SIGLA_AYUDANTIA],
+        )
+        self.add_item(
+            course.id, course.sections, course.lab.items(), c.COLORES[c.SIGLA_LAB]
+        )
+        self.add_item(
+            course.id, course.sections, course.taller.items(), c.COLORES[c.SIGLA_TALLER]
+        )
 
     def add_item(self, course_id, sections, items, color):
         for dia, modulos in items:
@@ -96,7 +121,9 @@ class ScheduleWindow(QWidget):
                 if modulo <= 4:
                     modulo -= 1
                 if self.tb_schedule.cellWidget(modulo, c.DIAS[dia]):
-                    self.tb_schedule.cellWidget(modulo, c.DIAS[dia]).addLabel(f"{course_id}-{','.join(sections)}", color)
+                    self.tb_schedule.cellWidget(modulo, c.DIAS[dia]).addLabel(
+                        f"{course_id}-{','.join(sections)}", color
+                    )
                 else:
                     item = DoubleLineWidget(f"{course_id}-{','.join(sections)}", color)
                     self.tb_schedule.setCellWidget(modulo, c.DIAS[dia], item)
@@ -126,12 +153,21 @@ class ScheduleWindow(QWidget):
             item = QListWidgetItem()
             item.setSizeHint(QSize(100, 80))
             self.list_current_courses.addItem(item)
-            self.list_current_courses.setItemWidget(item, CourseInfoListElement(course.id, course.name, course.sections, course.nrcs, course.teachers))
+            self.list_current_courses.setItemWidget(
+                item,
+                CourseInfoListElement(
+                    course.id,
+                    course.name,
+                    course.sections,
+                    course.nrcs,
+                    course.teachers,
+                ),
+            )
 
     def new_schedule(self, combinations):
         self.course_list = combinations
         self.current_course_index = 0
-        self.update_current_index_label()
+        # self.update_current_index_label()
         self.update_combinations_label()
         self.update_schedule()
         self.btn_previous.setEnabled(False)
@@ -146,27 +182,35 @@ class ScheduleWindow(QWidget):
         self.lbl_combinations.setText(f"{len(self.course_list)} combinaciones")
 
     def buscar_sigla(self):
-        sigla = self.txt_sigla.text()
-        if sigla != "":
-            self.senal_buscar_sigla.emit(sigla)
+        self.senal_buscar_sigla.emit(self.txt_sigla.text())
 
-    def add_course(self, course):
+    def add_course(self, course: Course):
         item = QListWidgetItem()
         item.setSizeHint(QSize(100, 80))
         self.list_courses.addItem(item)
-        self.list_courses.setItemWidget(item, CourseListElement(course.id, course.sections, self.senal_borrar_curso, self.senal_cambiar_seccion))
+        self.list_courses.setItemWidget(
+            item,
+            CourseListElement(
+                course[gc.ID],
+                course[gc.SIGLA],
+                course[gc.SECCIONES],
+                self.senal_borrar_curso,
+                self.senal_cambiar_seccion,
+            ),
+        )
 
     def delete_course(self, course_id):
         for i in range(self.list_courses.count()):
             item = self.list_courses.item(i)
             widget = self.list_courses.itemWidget(item)
-            if widget.lbl_id.text() == course_id:
+            if widget.id_curso == course_id:
                 self.list_courses.takeItem(self.list_courses.row(item))
                 del item
                 break
 
     def enviar_buscar_ofgs(self):
         self.senal_buscar_ofgs.emit(self.course_list[self.current_course_index])
+
 
 if __name__ == "__main__":
 

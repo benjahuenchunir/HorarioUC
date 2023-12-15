@@ -17,7 +17,14 @@ HORARIO = "horario"
 FORMATO = "formato"
 SECCIONES = "secciones"
 
-CATEDRA = "CLAS"
-LAB = "LAB"
-AYUDANTIA = "AYU"
-TALLER = "TAL"
+NRCS = "nrcs"
+PROFESORES = "profesores"
+CAMPUSES = "campuses"
+FORMATOS = "formatos"
+
+SIGLA_CATEDRA = "CLAS"
+SIGLA_LAB = "LAB"
+SIGLA_AYUDANTIA = "AYU"
+SIGLA_TALLER = "TAL"
+
+TODAS = 0

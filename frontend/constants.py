@@ -1,13 +1,23 @@
-from global_constants import CATEDRA, LAB, AYUDANTIA, TALLER
+from global_constants import SIGLA_CATEDRA, SIGLA_LAB, SIGLA_AYUDANTIA, SIGLA_TALLER
 
-DIAS = {
-    "L": 0, "M": 1, "W": 2, "J": 3, "V": 4
-}
-H_LABELS_HORARIO = ["8:20", "9:40", "11:00", "12:20", "Almuerzo", "14:50", "16:10", "17:30", "18:50"]
+DIAS = {"L": 0, "M": 1, "W": 2, "J": 3, "V": 4}
+H_LABELS_HORARIO = [
+    "8:20",
+    "9:40",
+    "11:00",
+    "12:20",
+    "Almuerzo",
+    "14:50",
+    "16:10",
+    "17:30",
+    "18:50",
+]
 COLORES = {
-    CATEDRA: "#FBC575", LAB: "#B3D4F5", AYUDANTIA: "#99CC99", TALLER: "#C7C2F8"
+    SIGLA_CATEDRA: "#FBC575",
+    SIGLA_LAB: "#B3D4F5",
+    SIGLA_AYUDANTIA: "#99CC99",
+    SIGLA_TALLER: "#C7C2F8",
 }
-TODAS = 0
 ARTES = "Artes"
 CSOC = "Ciencias sociales"
 CTEC = "Ciencia y tecnologia"
@@ -27,7 +37,7 @@ OFG = {
     FTEO: "FTEO",
     HUMS: "HUMS",
     PMAT: "PMAT",
-    SBIE: "SBIE"
+    SBIE: "SBIE",
 }
 
 TODOS = "TODOS"

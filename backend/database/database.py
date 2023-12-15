@@ -20,14 +20,6 @@ class Database:
         print("Se abrió la conexión con el servidor.")
         self.crear_dependencias()
 
-    # Decoradora para el reporte de bases de datos en el servidor
-    def reporte_bd(funcion_parametro):
-        def interno(self, nombre_bd):
-            funcion_parametro(self, nombre_bd)  # type: ignore
-            Database.mostrar_bd(self)
-
-        return interno
-
     # Decorador para el cierre del cursor y la base de datos
     def conexion(funcion_parametro):
         def interno(self, *args, **kwargs):
@@ -58,43 +50,8 @@ class Database:
 
         return interno
 
-    # Decorador para comprobar si existe una base de datos
-    def comprueba_bd(funcion_parametro):
-        def interno(self, nombre_bd, *args):
-            # Verifica si la base de datos existe en el servidor
-            sql = f"SHOW DATABASES LIKE '{nombre_bd}'"
-            self.cursor.execute(sql)
-            resultado = self.cursor.fetchone()
-
-            # Si la base de datos no existe, muestra un mensaje de error
-            if not resultado:
-                print(f"La base de datos {nombre_bd} no existe.")
-                return
-            # Ejecuta la función decorada y devuelve el resultado
-            return funcion_parametro(self, nombre_bd, *args)  # type: ignore
-
-        return interno
-
-    @conexion
-    def mostrar_bd(self):
-        try:
-            # Se informa de que se están obteniendo las bases de datos
-            print("Aquí tienes el listado de las bases de datos del servidor:")
-            # Realiza la consulta para mostrar las bases de datos
-            self.cursor.execute("SHOW DATABASES")
-            resultado = self.cursor.fetchall()
-            # Recorre los resultados y los muestra por pantalla
-            for bd in resultado:
-                print(f"-{bd[0]}.")
-        except:
-            # Si ocurre una excepción, se avisa en la consola
-            print(
-                "No se pudieron obtener las bases de datos. Comprueba la conexión con el servidor."
-            )
-
     # Crear bases de datos
     @conexion
-    @reporte_bd
     def crear_bd(self, nombre_bd):
         try:
             self.cursor.execute(f"CREATE DATABASE IF NOT EXISTS {nombre_bd}")
@@ -103,7 +60,6 @@ class Database:
             print(f"Ocurrió un error al intentar crear la base de datos {nombre_bd}.")
 
     @conexion
-    @comprueba_bd
     def crear_tabla(self, nombre_tabla: str, columnas: list[dict]):
         try:
             # String para guardar el string con las columnas y tipos de datos
