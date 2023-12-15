@@ -221,7 +221,10 @@ class Logic(QWidget):
     def new_schedule(self):
         self.combinaciones = self.generate_course_combinations(self.cursos.values())
         self.current_course_index = 0
-        self.senal_new_schedule.emit(self.combinaciones[self.current_course_index], len(self.combinaciones), self.current_course_index + 1)
+        if self.combinaciones:
+            self.senal_new_schedule.emit(self.combinaciones[self.current_course_index], len(self.combinaciones), self.current_course_index + 1)
+        else:
+            self.senal_new_schedule.emit((), 0, 0)
         if len(self.combinaciones) > 1:
             self.senal_change_next_btn_state.emit(True)
     

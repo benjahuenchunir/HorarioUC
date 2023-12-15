@@ -58,7 +58,5 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     
     horario = HorarioUC()
-    horario.backend.retrieve_course("IIC1005")
-    horario.backend.retrieve_course("MAT1630")
     
     sys.exit(app.exec())

@@ -170,6 +170,7 @@ class ScheduleWindow(QWidget):
         self.senal_buscar_sigla.emit(self.txt_sigla.currentText())
 
     def add_course(self, course: Course):
+        self.txt_sigla.clearEditText()
         item = QListWidgetItem()
         item.setSizeHint(QSize(100, 80))
         self.list_courses.addItem(item)
