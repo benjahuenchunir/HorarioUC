@@ -3,6 +3,7 @@ from typing import TypedDict
 class GroupedSection(TypedDict):
     id_curso: int
     sigla: str
+    nombre: str
     secciones: list[int]
     nrcs: list[int]
     profesores: list[str]

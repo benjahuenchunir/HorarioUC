@@ -5,12 +5,14 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QVBoxLayout,
     QHBoxLayout,
-    QComboBox
-    
+    QComboBox,
 )
+from PyQt5.QtCore import Qt
 import sys
 from backend.models import GroupedSection
 import global_constants as c
+from PyQt5.QtGui import QFont
+
 
 class DoubleLineWidget(QWidget):
     def __init__(self, text, color):
@@ -34,24 +36,118 @@ class DoubleLineWidget(QWidget):
         label.setStyleSheet(f"background-color: {color}; font-weight: bold")
         self.main_layout.addWidget(label)
 
+# class GroupedSection(TypedDict):
+#     id_curso: int
+#     sigla: str
+#     secciones: list[int]
+#     nrcs: list[int]
+#     profesores: list[str]
+#     campuses: list[str]
+#     en_ingles: list[bool]
+#     formatos: list[str]
+#     horario: dict[str, dict]
 
-class CourseInfoListElement(QWidget):
-    def __init__(self, id_, name, secciones, nrc, profesor):
+class CustomTooltip(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowFlags(Qt.ToolTip)
+        self.setLayout(QVBoxLayout())
+        self.label = QLabel(self)
+        self.layout().addWidget(self.label)
+
+    def setText(self, text):
+        self.label.setText(text)
+
+class CourseInfoListHeader(QWidget):
+    def __init__(self):
         super().__init__()
-
         hbox = QHBoxLayout()
         self.setLayout(hbox)
-        self.lbl_id = QLabel(str(id_), self)
+        font = QFont()
+        font.setBold(True)
+        self.lbl_id = QLabel("SIGLA", self)
+        self.lbl_id.setFont(font)
+        self.lbl_id.setFixedWidth(100)
         hbox.addWidget(self.lbl_id)
-        self.lbl_name = QLabel(name, self)
+        self.lbl_name = QLabel("NOMBRE", self)
+        self.lbl_name.setFont(font)
+        self.lbl_name.setFixedWidth(100)
+        hbox.addWidget(self.lbl_name)
+        self.lbl_seccion = QLabel("SECCION", self)
+        self.lbl_seccion.setFont(font)
+        self.lbl_seccion.setFixedWidth(100)
+        hbox.addWidget(self.lbl_seccion)
+        self.lbl_nrc = QLabel("NRC", self)
+        self.lbl_nrc.setFont(font)
+        self.lbl_nrc.setFixedWidth(100)
+        hbox.addWidget(self.lbl_nrc)
+        self.lbl_teacher = QLabel("PROFESOR", self)
+        self.lbl_teacher.setFont(font)
+        self.lbl_teacher.setFixedWidth(100)
+        hbox.addWidget(self.lbl_teacher)
+
+class CourseInfoListElement(QWidget):
+    def __init__(self, grouped_section: GroupedSection):
+        super().__init__()
+        hbox = QHBoxLayout()
+        self.setLayout(hbox)
+        self.lbl_id = QLabel(str(grouped_section[c.SIGLA]), self)
+        self.lbl_id.setFixedWidth(100)
+        hbox.addWidget(self.lbl_id)
+        self.lbl_name = QLabel(grouped_section[c.NOMBRE], self)
+        self.lbl_name.setFixedWidth(100)
         self.lbl_name.setWordWrap(True)
         hbox.addWidget(self.lbl_name)        
-        self.lbl_seccion = QLabel("\n".join(map(str, secciones)), self)
+        self.lbl_seccion = QLabel("\n".join(map(str, grouped_section[c.SECCIONES])), self)
+        self.lbl_seccion.setFixedWidth(100)
         hbox.addWidget(self.lbl_seccion)
-        self.lbl_nrc = QLabel("\n".join(map(str, nrc)), self)
+        self.lbl_nrc = QLabel("\n".join(map(str, grouped_section[c.NRCS])), self)
+        self.lbl_nrc.setFixedWidth(100)
         hbox.addWidget(self.lbl_nrc)
-        self.lbl_teacher = QLabel("\n".join(profesor), self)
+        self.lbl_teacher = QLabel("\n".join(grouped_section[c.PROFESORES]), self)
+        self.lbl_teacher.setFixedWidth(100)
         hbox.addWidget(self.lbl_teacher)
+
+        extra_data = """
+        <style>
+            table {
+                border-collapse: collapse;
+                width: 100%;
+            }
+            th, td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+            }
+            tr:nth-child(even) {
+                background-color: #f2f2f2;
+            }
+            th {
+                background-color: #4CAF50;
+                color: white;
+            }
+        </style>
+        <table>
+            <tr>
+                <th>Seccion</th>
+                <th>Campus</th>
+                <th>En Ingles</th>
+                <th>Formato</th>
+            </tr>
+        """
+        for seccion, campus, en_ingles, formato in zip(grouped_section['secciones'], grouped_section['campuses'], grouped_section['en_ingles'], grouped_section['formatos']):
+            extra_data += f"<tr><td>{seccion}</td><td>{campus}</td><td>{en_ingles}</td><td>{formato}</td></tr>"
+        extra_data += "</table>"
+
+        self.tooltip = CustomTooltip(self)
+        self.tooltip.setText(extra_data)
+
+    def enterEvent(self, event):
+        self.tooltip.move(event.globalPos())
+        self.tooltip.show()
+
+    def leaveEvent(self, event):
+        self.tooltip.hide()
 
 
 class CourseListElement(QWidget):

@@ -129,7 +129,7 @@ class Logic(QWidget):
         self.current_ofg_combination_index = 0
         self.senal_new_schedule_ofg.emit(self.ofg_combinations[self.current_ofg_combination_index], len(self.ofg_combinations), self.current_ofg_combination_index + 1)
         if len(self.ofg_combinations) > 1:
-            self.senal_change_next_btn_state_ofg.emit(True)
+            self.senal_change_next_btn_state_ofg.emit(True)        
     
     def save_current_combination(self):
         self.current_combination.clear()

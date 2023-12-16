@@ -24,6 +24,7 @@ from frontend.widgets import (
     CourseListElement,
     CourseInfoListElement,
     DoubleLineWidget,
+    CourseInfoListHeader
 )
 from backend.models import GroupedSection
 import frontend.constants as c
@@ -90,6 +91,7 @@ class ScheduleWindow(QWidget):
         self.tb_schedule.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.set_lunch_line(4)
         self.list_current_courses = QListWidget(self)
+        self.list_current_courses.setSelectionMode(QAbstractItemView.NoSelection) # This is to avoid the blue selection   
         layout_courses.addWidget(self.tb_schedule)
         layout_courses.addWidget(self.list_current_courses)
         layout.addLayout(layout_courses)
@@ -137,20 +139,24 @@ class ScheduleWindow(QWidget):
         self.list_current_courses.clear()
         self.tb_schedule.clearContents()
         self.set_lunch_line(4)
+        header_item = QListWidgetItem()
+        header_item.setSizeHint(QSize(100, 35))
+        header_item.setFlags(Qt.NoItemFlags)
+        self.list_current_courses.addItem(header_item)
+        self.list_current_courses.setItemWidget(
+            header_item,
+            CourseInfoListHeader(),
+        )
         for course in combinacion:
             self.add_course_schedule(course)
             item = QListWidgetItem()
-            item.setSizeHint(QSize(100, 80))
+            item.setFlags(Qt.NoItemFlags)
+            widget = CourseInfoListElement(course)
+            item.setSizeHint(widget.sizeHint())
             self.list_current_courses.addItem(item)
             self.list_current_courses.setItemWidget(
                 item,
-                CourseInfoListElement(
-                    course[gc.ID_CURSO],
-                    course[gc.SIGLA],
-                    course[gc.SECCIONES],
-                    course[gc.NRCS],
-                    course[gc.PROFESORES],
-                ),
+                widget,
             )
 
     def new_schedule(self, combination: list[GroupedSection], cantidad_combinaciones, combinacion_actual):

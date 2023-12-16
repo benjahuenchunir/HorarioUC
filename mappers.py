@@ -16,12 +16,12 @@ def mapCourseToModel(course: CourseDTO, secciones: list[SectionDTO]) -> Course:
         area=course[c.AREA],
         creditos=course[c.CREDITOS],
         descripcion=course[c.DESCRIPCION],
-        secciones=group_courses_by_schedule(course[c.ID], course[c.SIGLA], secciones),
+        secciones=group_courses_by_schedule(course[c.ID], course[c.SIGLA], course[c.NOMBRE], secciones),
     )
 
 
 def group_courses_by_schedule(
-    course_id: int, sigla: str, sections: list[SectionDTO]
+    course_id: int, sigla: str, nombre: str, sections: list[SectionDTO]
 ) -> list[GroupedSection]:
     """
     Groups the sections of a course by the horario dict.
@@ -32,6 +32,7 @@ def group_courses_by_schedule(
         GroupedSection(
             id_curso=course_id,
             sigla=sigla,
+            nombre=nombre,
             secciones=[section[c.SECCION] for section in sections_list],
             nrcs=[section[c.NRC] for section in sections_list],
             profesores=[section[c.PROFESOR] for section in sections_list],

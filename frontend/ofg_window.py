@@ -20,7 +20,7 @@ from PyQt5.QtCore import pyqtSignal, QSize, Qt
 from PyQt5.QtGui import QColor
 import frontend.constants as p
 import global_constants as gc
-from frontend.widgets import DoubleLineWidget, CourseInfoListElement
+from frontend.widgets import DoubleLineWidget, CourseInfoListElement, CourseInfoListHeader
 from backend.models import GroupedSection
 
 
@@ -71,6 +71,7 @@ class OFGWindow(QWidget):
         self.tb_schedule.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.set_lunch_line()
         self.list_current_courses = QListWidget(self)
+        self.list_current_courses.setSelectionMode(QAbstractItemView.NoSelection)
         layout_courses.addWidget(self.tb_schedule)
         layout_courses.addWidget(self.list_current_courses)
         layout.addLayout(layout_courses)
@@ -134,20 +135,24 @@ class OFGWindow(QWidget):
         self.list_current_courses.clear()
         self.tb_schedule.clearContents()
         self.set_lunch_line()
+        header_item = QListWidgetItem()
+        header_item.setSizeHint(QSize(100, 35))
+        header_item.setFlags(Qt.NoItemFlags)
+        self.list_current_courses.addItem(header_item)
+        self.list_current_courses.setItemWidget(
+            header_item,
+            CourseInfoListHeader(),
+        )
         for course in combinacion:
             self.add_course_schedule(course)
             item = QListWidgetItem()
-            item.setSizeHint(QSize(100, 80))
+            item.setFlags(Qt.NoItemFlags)
+            widget = CourseInfoListElement(course)
+            item.setSizeHint(widget.sizeHint())
             self.list_current_courses.addItem(item)
             self.list_current_courses.setItemWidget(
                 item,
-                CourseInfoListElement(
-                    course[gc.ID_CURSO],
-                    course[gc.SIGLA],
-                    course[gc.SECCIONES],
-                    course[gc.NRCS],
-                    course[gc.PROFESORES],
-                ),
+                widget,
             )
 
     def new_schedule(
