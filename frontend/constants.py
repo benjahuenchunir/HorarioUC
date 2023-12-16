@@ -28,6 +28,8 @@ CREDITOS_5 = 5
 CAMPUS = [TODOS, SAN_JOAQUIN, CASA_CENTRAL]
 CREDITOS = [TODOS, CREDITOS_10, CREDITOS_5]
 
+BOOL_TO_STR = {1: "Si", 0: "No"}
+
 LIGHT_MODE = """
             QWidget {
                 font-family: Arial;

@@ -64,6 +64,7 @@ class ScheduleWindow(QWidget):
         layout.addLayout(layout_add)
 
         self.list_courses = QListWidget(self)
+        self.list_courses.setSelectionMode(QAbstractItemView.NoSelection) # This is to avoid the blue selection
         self.lbl_combinations = QLabel("0", self)
         self.lbl_combinations.setStyleSheet("background-color: #2b2b2b;")
         layout.addWidget(self.list_courses)
@@ -178,17 +179,18 @@ class ScheduleWindow(QWidget):
     def add_course(self, course: Course):
         self.txt_sigla.clearEditText()
         item = QListWidgetItem()
-        item.setSizeHint(QSize(100, 80))
-        self.list_courses.addItem(item)
-        self.list_courses.setItemWidget(
-            item,
-            CourseListElement(
-                course[gc.ID],
-                course[gc.SIGLA],
+        item.setFlags(Qt.NoItemFlags)
+        widget = CourseListElement(
+                course,
                 course[gc.SECCIONES],
                 self.senal_borrar_curso,
                 self.senal_cambiar_seccion,
-            ),
+            )
+        item.setSizeHint(widget.sizeHint())
+        self.list_courses.addItem(item)
+        self.list_courses.setItemWidget(
+            item,
+            widget,
         )
 
     def delete_course(self, course_id):

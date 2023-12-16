@@ -1,3 +1,5 @@
+import typing
+from PyQt5 import QtCore
 from PyQt5.QtWidgets import (
     QApplication,
     QWidget,
@@ -9,8 +11,9 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import Qt
 import sys
-from backend.models import GroupedSection
+from backend.models import GroupedSection, Course
 import global_constants as c
+import frontend.constants as p
 from PyQt5.QtGui import QFont
 
 
@@ -135,8 +138,8 @@ class CourseInfoListElement(QWidget):
                 <th>Formato</th>
             </tr>
         """
-        for seccion, campus, en_ingles, formato in zip(grouped_section['secciones'], grouped_section['campuses'], grouped_section['en_ingles'], grouped_section['formatos']):
-            extra_data += f"<tr><td>{seccion}</td><td>{campus}</td><td>{en_ingles}</td><td>{formato}</td></tr>"
+        for seccion, campus, en_ingles, formato in zip(grouped_section[c.SECCIONES], grouped_section[c.CAMPUSES], grouped_section[c.EN_INGLES], grouped_section[c.FORMATOS]):
+            extra_data += f"<tr><td>{seccion}</td><td>{campus}</td><td>{p.BOOL_TO_STR[en_ingles]}</td><td>{formato}</td></tr>"
         extra_data += "</table>"
 
         self.tooltip = CustomTooltip(self)
@@ -149,18 +152,17 @@ class CourseInfoListElement(QWidget):
     def leaveEvent(self, event):
         self.tooltip.hide()
 
-
 class CourseListElement(QWidget):
-    def __init__(self, id_curso, sigla, secciones_agrupadas: list[GroupedSection], senal_borrar_curso, senal_cambiar_seccion):
+    def __init__(self, curso: Course, secciones_agrupadas: list[GroupedSection], senal_borrar_curso, senal_cambiar_seccion):
         super().__init__()
-        self.id_curso = id_curso
+        self.id_curso = curso[c.ID]
         hbox = QHBoxLayout()
         self.setLayout(hbox)
         secciones: list[tuple[int, str]] = []
         for seccion_grupo in secciones_agrupadas:
             for seccion, profesor in zip(seccion_grupo[c.SECCIONES], seccion_grupo[c.PROFESORES]):
                 secciones.append((seccion, profesor))
-        self.lbl_id = QLabel(sigla, self)
+        self.lbl_id = QLabel(curso[c.SIGLA], self)
         hbox.addWidget(self.lbl_id)
         self.lbl_secciones = QLabel(str(len(secciones)), self)
         hbox.addWidget(self.lbl_secciones)
@@ -176,13 +178,23 @@ class CourseListElement(QWidget):
         self.senal_borrar_curso = senal_borrar_curso
         self.qcb_section_selection.currentIndexChanged.connect(self.cambiar_seccion)
         self.btn_delete.clicked.connect(self.borrar)
+        
+        extra_data = f"<b>Permite Retiro:</b> {p.BOOL_TO_STR[curso[c.PERMITE_RETIRO]]}<br><b>Aprob Especial:</b> {p.BOOL_TO_STR[curso[c.APROB_ESPECIAL]]}<br><b>Area:</b> {curso[c.AREA]}<br><b>Creditos:</b> {curso[c.CREDITOS]}<br><b>Descripcion:</b> {curso[c.DESCRIPCION]}"
+        self.tooltip = CustomTooltip(self)
+        self.tooltip.setText(extra_data)
 
     def cambiar_seccion(self, indice):
         self.senal_cambiar_seccion.emit(self.id_curso, indice)
 
     def borrar(self):
         self.senal_borrar_curso.emit(self.id_curso)
+    
+    def enterEvent(self, event):
+        self.tooltip.move(event.globalPos())
+        self.tooltip.show()
 
+    def leaveEvent(self, event):
+        self.tooltip.hide()
 class CourseFilters(QWidget):
     def __init__(self, senal_campus, senal_creditos) -> None:
         super().__init__()
