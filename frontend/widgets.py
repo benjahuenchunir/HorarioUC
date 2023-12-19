@@ -8,6 +8,8 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QComboBox,
+    QGroupBox,
+    QCheckBox,
 )
 from PyQt5.QtCore import Qt
 import sys
@@ -204,6 +206,19 @@ class FilterComboBox(QComboBox):
         super().__init__(parent)
         self.addItems(options)
         self.currentTextChanged.connect(lambda x: senal.emit())
+
+class TopesFilter(QGroupBox):
+    def __init__(self, parent = None) -> None:
+        super().__init__("Topes", parent)
+        checkbox_layout = QVBoxLayout(self)
+        checkbox1 = QCheckBox("Catedra + Catedra", self)
+        checkbox2 = QCheckBox("Catedra + Ayudantia", self)
+        checkbox3 = QCheckBox("Catedra + Lab", self)
+        checkbox4 = QCheckBox("Ayudantia + Ayudantia", self)
+        checkbox_layout.addWidget(checkbox1)
+        checkbox_layout.addWidget(checkbox2)
+        checkbox_layout.addWidget(checkbox3)
+        checkbox_layout.addWidget(checkbox4)
 
 
 if __name__ == "__main__":

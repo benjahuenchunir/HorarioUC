@@ -20,13 +20,14 @@ from PyQt5.QtWidgets import (
     QAction,
     QDockWidget
 )
-from PyQt5.QtCore import pyqtSignal, QSize, Qt
+from PyQt5.QtCore import pyqtSignal, QSize, Qt, QDir
 from PyQt5.QtGui import QColor, QIcon
 from frontend.widgets import (
     CourseListElement,
     CourseInfoListElement,
     DoubleLineWidget,
-    CourseInfoListHeader
+    CourseInfoListHeader,
+    TopesFilter
 )
 from backend.models import GroupedSection
 import frontend.constants as c
@@ -62,6 +63,22 @@ class ScheduleWindow(QMainWindow):
         self.addDockWidget(Qt.LeftDockWidgetArea, self.dock_widget)
         self.dock_widget.hide()
         menu_icon.triggered.connect(self.toggle_side_menu)
+        
+        dock_widget_content = QWidget(self.dock_widget)
+        dock_widget_layout = QVBoxLayout(dock_widget_content)
+        
+        checkbox_group = TopesFilter(dock_widget_content)
+        dock_widget_layout.addWidget(checkbox_group)
+        
+        file_list_title = QLabel("Guardados", dock_widget_content)
+        dock_widget_layout.addWidget(file_list_title)
+        file_list = QListWidget(dock_widget_content)
+        directory = QDir(c.PATH_SAVED_COMBINATIONS)
+        files = directory.entryList(QDir.Files)
+        file_list.addItems(files)
+        dock_widget_layout.addWidget(file_list)
+
+        self.dock_widget.setWidget(dock_widget_content)
 
         layout_add = QHBoxLayout()
         self.txt_sigla = QComboBox(self)
