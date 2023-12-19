@@ -195,6 +195,11 @@ class CourseListElement(QWidget):
 
     def leaveEvent(self, event):
         self.tooltip.hide()
+    
+    def update_section(self, seccion):
+        print(seccion)
+        self.qcb_section_selection.setCurrentIndex(seccion)
+    
 class CourseFilters(QWidget):
     def __init__(self, senal_campus, senal_creditos) -> None:
         super().__init__()

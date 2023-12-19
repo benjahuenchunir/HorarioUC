@@ -22,6 +22,7 @@ class Logic(QWidget):
     senal_change_next_btn_state = pyqtSignal(bool)
     senal_change_prev_btn_state = pyqtSignal(bool)
     senal_update_index = pyqtSignal(int)
+    senal_cambiar_seccion = pyqtSignal(int, int)
     
     senal_new_schedule_ofg = pyqtSignal(tuple, int, int)
     senal_update_schedule_ofg = pyqtSignal(tuple)
@@ -42,7 +43,7 @@ class Logic(QWidget):
         self.tope_ayudantia = False
         
         self.current_combination: list[Course] = []
-        self.ofg_combinations = []
+        self.ofg_combinations: list = []
         self.current_ofg_combination_index = 0
     
     @property
@@ -272,6 +273,12 @@ class Logic(QWidget):
             self.senal_change_prev_btn_state_ofg.emit(False)
         self.senal_update_schedule_ofg.emit(self.ofg_combinations[self.current_ofg_combination_index])
         self.senal_change_next_btn_state_ofg.emit(True)
+    
+    def choose_ofg(self):
+        current_combination = self.ofg_combinations[self.current_ofg_combination_index]
+        ofg = next(course for course in current_combination if course[c.ID_CURSO] not in [course[c.ID] for course in self.current_combination])
+        self.retrieve_course(ofg[c.SIGLA])
+        self.senal_cambiar_seccion.emit(ofg[c.ID_CURSO], ofg[c.SECCIONES][0])
 
 
 if __name__ == "__main__":

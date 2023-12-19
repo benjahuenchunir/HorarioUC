@@ -26,7 +26,6 @@ from backend.models import GroupedSection
 
 class OFGWindow(QWidget):
     senal_cambiar_area = pyqtSignal(str)
-    senal_volver = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -75,9 +74,11 @@ class OFGWindow(QWidget):
         layout_courses.addWidget(self.tb_schedule)
         layout_courses.addWidget(self.list_current_courses)
         layout.addLayout(layout_courses)
+        self.btn_choose_ofg = QPushButton("Elegir OFG", self)
+        self.btn_choose_ofg.setEnabled(False)
+        layout.addWidget(self.btn_choose_ofg)
 
         self.qcb_ofg_areas.currentTextChanged.connect(self.enviar_cambiar_area)
-        self.btn_back.clicked.connect(lambda x: self.senal_volver.emit())
 
     @property
     def current_course_index(self):
@@ -160,7 +161,7 @@ class OFGWindow(QWidget):
         combination: list[GroupedSection],
         cantidad_combinaciones,
         combinacion_actual,
-    ):
+    ):  
         self.update_combinations_label(cantidad_combinaciones)
         self.update_current_index_label(combinacion_actual)
         self.update_schedule(combination)

@@ -30,10 +30,12 @@ class HorarioUC:
         self.backend.senal_change_prev_btn_state.connect(lambda x: self.schedule_window.btn_previous.setEnabled(x))
         self.backend.senal_update_index.connect(self.schedule_window.update_current_index_label)
         self.schedule_window.senal_buscar_ofgs.connect(self.change_to_ofgs)
+        self.backend.senal_cambiar_seccion.connect(self.schedule_window.update_course_section)
     
     def conectar_senales_ofg(self):
         self.ofg_window.senal_cambiar_area.connect(self.backend.retrieve_ofg_area)
-        self.ofg_window.btn_back.clicked.connect(lambda: self.ofg_window.hide() or self.schedule_window.show())
+        self.ofg_window.senal_cambiar_area.connect(lambda: self.ofg_window.btn_choose_ofg.setEnabled(True))
+        self.ofg_window.btn_back.clicked.connect(self.change_to_schedule)
         self.ofg_window.btn_next.clicked.connect(self.backend.increase_ofg_index)
         self.backend.senal_change_next_btn_state_ofg.connect(lambda x: self.ofg_window.btn_next.setEnabled(x))
         self.ofg_window.btn_previous.clicked.connect(self.backend.decrease_ofg_index)
@@ -41,12 +43,18 @@ class HorarioUC:
         self.backend.senal_update_index_ofg.connect(self.ofg_window.update_current_index_label)
         self.backend.senal_new_schedule_ofg.connect(self.ofg_window.new_schedule)
         self.backend.senal_update_schedule_ofg.connect(self.ofg_window.update_schedule)
-    
+        self.ofg_window.btn_choose_ofg.clicked.connect(self.backend.choose_ofg)
+        self.ofg_window.btn_choose_ofg.clicked.connect(self.change_to_schedule)
+
     def change_to_ofgs(self):
         self.schedule_window.hide()
         self.ofg_window.iniciar()
         if self.backend.combinaciones:
             self.ofg_window.new_schedule(self.backend.combinaciones[self.backend.current_course_index], 0, 0)
+    
+    def change_to_schedule(self):
+        self.ofg_window.hide()
+        self.schedule_window.show()
         
 
 if __name__ == "__main__":

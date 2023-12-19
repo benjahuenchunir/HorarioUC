@@ -204,6 +204,14 @@ class ScheduleWindow(QWidget):
 
     def enviar_buscar_ofgs(self):
         self.senal_buscar_ofgs.emit()
+    
+    def update_course_section(self, course_id, section):
+        for i in range(self.list_courses.count()):
+            item = self.list_courses.item(i)
+            widget = self.list_courses.itemWidget(item)
+            if widget.id_curso == course_id:
+                widget.update_section(section)
+                break
 
 
 if __name__ == "__main__":
