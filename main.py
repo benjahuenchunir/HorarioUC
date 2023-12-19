@@ -13,7 +13,7 @@ class HorarioUC:
         self.conectar_senales_schedule()
         self.conectar_senales_ofg()
         self.backend.retrieve_all_courses()
-        self.schedule_window.show()
+        self.schedule_window.showMaximized()
     
     def conectar_senales_schedule(self):
         self.backend.senal_enviar_cursos.connect(self.schedule_window.add_suggestions)
@@ -54,7 +54,7 @@ class HorarioUC:
     
     def change_to_schedule(self):
         self.ofg_window.hide()
-        self.schedule_window.show()
+        self.schedule_window.showMaximized()
         
 
 if __name__ == "__main__":

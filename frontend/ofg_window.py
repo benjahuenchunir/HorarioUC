@@ -96,7 +96,7 @@ class OFGWindow(QWidget):
         self.qcb_ofg_areas.setCurrentIndex(0)
         self.btn_next.setEnabled(False)
         self.btn_previous.setEnabled(False)
-        self.show()
+        self.showMaximized()
 
     def set_lunch_line(self):
         color = QColor("#5a5a5a")
