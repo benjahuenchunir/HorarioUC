@@ -125,6 +125,8 @@ class Logic(QWidget):
                     return # TODO display error
                 ofg_courses.append(mapCourseToModel(ofg, secciones))
         for ofg in ofg_courses:
+            if ofg[c.ID] in self.cursos: # Omitir cursos ya agregados
+                continue
             combinaciones = self.generate_course_combinations(self.current_combination + [ofg])
             self.ofg_combinations.extend(combinaciones)
         self.current_ofg_combination_index = 0

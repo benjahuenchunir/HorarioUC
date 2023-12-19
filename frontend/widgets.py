@@ -197,7 +197,6 @@ class CourseListElement(QWidget):
         self.tooltip.hide()
     
     def update_section(self, seccion):
-        print(seccion)
         self.qcb_section_selection.setCurrentIndex(seccion)
     
 class CourseFilters(QWidget):
