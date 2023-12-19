@@ -199,24 +199,6 @@ class CourseListElement(QWidget):
     def update_section(self, seccion):
         self.qcb_section_selection.setCurrentIndex(seccion)
     
-class CourseFilters(QWidget):
-    def __init__(self, senal_campus, senal_creditos) -> None:
-        super().__init__()
-        self.senal_campus = senal_campus
-        self.senal_creditos = senal_creditos
-
-        layout_filters = QHBoxLayout()
-        self.setLayout(layout_filters)
-        self.qcb_campus_filter = QComboBox(self)
-        self.qcb_campus_filter.addItems(map(lambda x: x.replace("+", " "), c.CAMPUS))
-        self.qcb_credits_filter = QComboBox(self)
-        self.qcb_credits_filter.addItems(map(str, c.CREDITOS))
-        layout_filters.addWidget(self.qcb_campus_filter)
-        layout_filters.addWidget(self.qcb_credits_filter)
-
-        self.qcb_campus_filter.currentTextChanged.connect(lambda x: self.senal_campus.emit(x))
-        self.qcb_credits_filter.currentTextChanged.connect(lambda x: self.senal_creditos.emit(x))
-    
 class FilterComboBox(QComboBox):
     def __init__(self, options: list[str], senal: QtCore.pyqtBoundSignal, parent=None):
         super().__init__(parent)

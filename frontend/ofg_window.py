@@ -50,15 +50,16 @@ class OFGWindow(QMainWindow):
 
         self.toolbar = QToolBar(self)
         self.addToolBar(self.toolbar)
-        self.back_action = QAction(QIcon(p.PATH_BACK_ICON), "Back", self)
+        self.back_action = QAction(QIcon(p.PATH_BACK_ICON), "Volver", self)
         self.toolbar.addAction(self.back_action)
-        self.side_menu_action = QAction(QIcon(p.PATH_FILTER_ICON), "Menu", self)
+        self.side_menu_action = QAction(QIcon(p.PATH_FILTER_ICON), "Filtrar", self)
         self.toolbar.addAction(self.side_menu_action)
         self.side_menu_action.triggered.connect(self.open_side_menu)
 
         self.dock_widget = QDockWidget("Filtros", self)
-        self.dock_widget.setAllowedAreas(Qt.RightDockWidgetArea)
-        self.addDockWidget(Qt.RightDockWidgetArea, self.dock_widget)
+        self.dock_widget.setAllowedAreas(Qt.LeftDockWidgetArea)
+        self.dock_widget.setFeatures(QDockWidget.NoDockWidgetFeatures)
+        self.addDockWidget(Qt.LeftDockWidgetArea, self.dock_widget)
         self.dock_widget.hide()
 
         dock_widget_content = QWidget(self.dock_widget)

@@ -14,13 +14,15 @@ from PyQt5.QtWidgets import (
     QTableWidgetItem,
     QApplication,
     QAbstractItemView,
-    QCompleter
+    QCompleter,
+    QMainWindow,
+    QMenuBar,
+    QAction,
+    QDockWidget
 )
-from icecream import ic
 from PyQt5.QtCore import pyqtSignal, QSize, Qt
-from PyQt5.QtGui import QColor
+from PyQt5.QtGui import QColor, QIcon
 from frontend.widgets import (
-    CourseFilters,
     CourseListElement,
     CourseInfoListElement,
     DoubleLineWidget,
@@ -31,7 +33,7 @@ import frontend.constants as c
 import global_constants as gc
 from backend.models import Course
 
-class ScheduleWindow(QWidget):
+class ScheduleWindow(QMainWindow):
     senal_buscar_sigla = pyqtSignal(str)
     senal_borrar_curso = pyqtSignal(int)
     senal_cambiar_seccion = pyqtSignal(int, int)
@@ -42,16 +44,24 @@ class ScheduleWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setGeometry(0, 0, 1280, 720)
-        self.course_list = []
-        layout = QVBoxLayout()
-        self.setLayout(layout)
-
         # TODO toggle dark mode
         self.setStyleSheet(c.DARK_MODE)
         
-        # TODO implement filters
-        filters = CourseFilters(self.senal_cambiar_campus, self.senal_cambiar_creditos)
-        layout.addWidget(filters)
+        central_widget = QWidget(self)
+        self.setCentralWidget(central_widget)
+        layout = QVBoxLayout(central_widget)
+        
+        menu_bar = QMenuBar(self)
+        self.setMenuBar(menu_bar)
+        menu_icon = QAction(QIcon(c.PATH_MENU_ICON), "Menu", self)
+        menu_bar.addAction(menu_icon)
+        
+        self.dock_widget = QDockWidget("Menu", self)
+        self.dock_widget.setAllowedAreas(Qt.LeftDockWidgetArea)
+        self.dock_widget.setFeatures(QDockWidget.NoDockWidgetFeatures)
+        self.addDockWidget(Qt.LeftDockWidgetArea, self.dock_widget)
+        self.dock_widget.hide()
+        menu_icon.triggered.connect(self.toggle_side_menu)
 
         layout_add = QHBoxLayout()
         self.txt_sigla = QComboBox(self)
@@ -101,6 +111,12 @@ class ScheduleWindow(QWidget):
 
         self.btn_add.clicked.connect(self.buscar_sigla)
         btn_ofgs.clicked.connect(self.enviar_buscar_ofgs)
+    
+    def toggle_side_menu(self):
+        if self.dock_widget.isVisible():
+            self.dock_widget.hide()
+        else:
+            self.dock_widget.show()
     
     def add_suggestions(self, courses: list[Course]):
         self.txt_sigla.clear()
