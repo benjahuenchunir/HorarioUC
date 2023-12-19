@@ -216,6 +216,12 @@ class CourseFilters(QWidget):
 
         self.qcb_campus_filter.currentTextChanged.connect(lambda x: self.senal_campus.emit(x))
         self.qcb_credits_filter.currentTextChanged.connect(lambda x: self.senal_creditos.emit(x))
+    
+class FilterComboBox(QComboBox):
+    def __init__(self, options: list[str], senal: QtCore.pyqtBoundSignal, parent=None):
+        super().__init__(parent)
+        self.addItems(options)
+        self.currentTextChanged.connect(lambda x: senal.emit())
 
 
 if __name__ == "__main__":

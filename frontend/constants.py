@@ -134,3 +134,7 @@ DARK_MODE = """
                 selection-background-color: #5a5a5a;
             }
         """
+        
+PATH_ASSETS = "frontend/assets/"
+PATH_BACK_ICON = PATH_ASSETS + "back_icon.png"
+PATH_FILTER_ICON = PATH_ASSETS + "filter_icon.png"

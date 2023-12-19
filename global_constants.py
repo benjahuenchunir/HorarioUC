@@ -49,3 +49,12 @@ OFG = {
     PMAT: "PMAT",
     SBIE: "SBIE",
 }
+
+CUALQUIERA = "Cualquiera"
+SI = "Si"
+NO = "No"
+OPCIONES_CAMPUS = [CUALQUIERA, "San Joaquin", "Casa Central", "Lo Contador", "Oriente", "Villarrica", "Campus externo"]
+OPCIONES_FORMATO = [CUALQUIERA, "Presencial", "Remoto", "Híbrido", "Remoto con Act.Presencial"]
+OPCIONES_CREDITOS = [CUALQUIERA, "5", "10"]
+OPCIONES_EN_INGLES = [CUALQUIERA, SI, NO]
+OPCIONES_PERMITE_RETIRO = [CUALQUIERA, SI, NO]

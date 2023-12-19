@@ -1,4 +1,5 @@
 from typing import TypedDict
+from dataclasses import dataclass
 
 class GroupedSection(TypedDict):
     id_curso: int
@@ -22,4 +23,12 @@ class Course(TypedDict):
     creditos: int
     descripcion: str
     secciones: list[GroupedSection]
+
+@dataclass
+class Filter():
+    campus: str
+    formato: str
+    creditos: str
+    en_ingles: str
+    permite_retiro: str
 
