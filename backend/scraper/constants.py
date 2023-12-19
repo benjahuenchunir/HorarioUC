@@ -1,0 +1,1 @@
+STRING_TO_BOOL = {"SI": 1, "NO": 0}
