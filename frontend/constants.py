@@ -133,6 +133,9 @@ DARK_MODE = """
                 color: #ffffff;
                 selection-background-color: #5a5a5a;
             }
+            QToolBar {
+                background-color: #000;
+            }
         """
         
 PATH_ASSETS = "frontend/assets/"

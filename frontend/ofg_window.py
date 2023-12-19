@@ -49,6 +49,7 @@ class OFGWindow(QMainWindow):
         self.setCentralWidget(central_widget)
 
         self.toolbar = QToolBar(self)
+        self.toolbar.setIconSize(QSize(32, 32))
         self.addToolBar(self.toolbar)
         self.back_action = QAction(QIcon(p.PATH_BACK_ICON), "Volver", self)
         self.toolbar.addAction(self.back_action)
@@ -224,6 +225,9 @@ class OFGWindow(QMainWindow):
         self.update_schedule(combination)
         self.btn_previous.setEnabled(False)
         self.btn_next.setEnabled(False)
+        self.btn_choose_ofg.setEnabled(False)
+        if len(combination) > 1:
+            self.btn_choose_ofg.setEnabled(True)
 
     def update_current_index_label(self, combinacion_actual):
         self.lbl_current_ofg.setText(f"Combinacion {combinacion_actual}")

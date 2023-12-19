@@ -18,10 +18,11 @@ from PyQt5.QtWidgets import (
     QMainWindow,
     QMenuBar,
     QAction,
-    QDockWidget
+    QDockWidget,
+    QToolBar
 )
 from PyQt5.QtCore import pyqtSignal, QSize, Qt, QDir
-from PyQt5.QtGui import QColor, QIcon
+from PyQt5.QtGui import QColor, QIcon, QFont
 from frontend.widgets import (
     CourseListElement,
     CourseInfoListElement,
@@ -52,12 +53,13 @@ class ScheduleWindow(QMainWindow):
         self.setCentralWidget(central_widget)
         layout = QVBoxLayout(central_widget)
         
-        menu_bar = QMenuBar(self)
-        self.setMenuBar(menu_bar)
+        menu_bar = QToolBar(self, movable=False)
+        menu_bar.setIconSize(QSize(32, 32))
+        self.addToolBar(menu_bar)
         menu_icon = QAction(QIcon(c.PATH_MENU_ICON), "Menu", self)
         menu_bar.addAction(menu_icon)
         
-        self.dock_widget = QDockWidget("Menu", self)
+        self.dock_widget = QDockWidget("", self)
         self.dock_widget.setAllowedAreas(Qt.LeftDockWidgetArea)
         self.dock_widget.setFeatures(QDockWidget.NoDockWidgetFeatures)
         self.addDockWidget(Qt.LeftDockWidgetArea, self.dock_widget)

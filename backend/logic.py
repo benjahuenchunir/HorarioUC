@@ -165,8 +165,8 @@ class Logic(QWidget):
         courses = self.scraper.parse_url(url)
         if not courses:
             ... # TODO display error
-        for course, sections in courses.values():
-            self.insert_course(course, sections)
+        for course_tuple in courses.values():
+            self.insert_course(course_tuple)
         self.retrieve_all_courses()
         return courses
     

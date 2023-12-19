@@ -34,7 +34,6 @@ class HorarioUC:
     
     def conectar_senales_ofg(self):
         self.ofg_window.senal_cambiar_area.connect(self.backend.retrieve_ofg_area)
-        self.ofg_window.senal_cambiar_area.connect(lambda: self.ofg_window.btn_choose_ofg.setEnabled(True))
         self.ofg_window.back_action.triggered.connect(self.change_to_schedule)
         self.ofg_window.btn_next.clicked.connect(self.backend.increase_ofg_index)
         self.backend.senal_change_next_btn_state_ofg.connect(lambda x: self.ofg_window.btn_next.setEnabled(x))
