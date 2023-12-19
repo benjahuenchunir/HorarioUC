@@ -67,44 +67,40 @@ class Logic(QWidget):
         self.senal_enviar_cursos.emit(cursos_model)
 
     def retrieve_course(self, sigla_curso: str):
-        """
-        Tries to retrieve a course from the database and if it doesn't exist, it scrapes it from the website.
-        """
-        if sigla_curso == "":
+        if not sigla_curso:
             return
         sigla_curso = sigla_curso.upper()
         if any(sigla_curso == course[c.SIGLA].upper() for course in self.cursos.values()):
             return
-        print("Buscando curso en la base de datos: ", sigla_curso, "...")
+        print(f"Buscando curso en la base de datos: {sigla_curso} ...")
         resultado = self.db.recuperar_curso(sigla_curso)
         if resultado is None:
-            print(
-                "No existe el curso en la base de datos, se procederá a buscarlo en la página web"
-            )
-            tupla_curso = self.scrape_course(sigla_curso)
-            if tupla_curso is None:
-                # TODO display error
+            resultado, secciones = self.scrape_course(sigla_curso)
+            if resultado is None:
                 return
-            resultado, secciones = tupla_curso
         else:
             print("El curso existe en la base de datos")
-            secciones = self.db.recuperar_secciones(resultado[c.ID])
-        curso = mapCourseToModel(resultado, secciones)
-        self.cursos[curso[c.ID]] = curso
-        self.senal_add_course.emit(curso)
-        self.new_schedule()
+            secciones = self.retrieve_sections(resultado[c.ID])
+        self.add_course_to_list(resultado, secciones)
 
-    def scrape_course(self, sigla) -> tuple[CourseDTO, list[SectionDTO]] | None:
-        course = self.scraper.find_course_info(sigla)
+    def retrieve_sections(self, course_id):
+        return self.db.recuperar_secciones(course_id)
+
+    def scrape_course(self, sigla_curso):
+        print(f"No existe el curso en la base de datos, se procederá a buscarlo en la página web")
+        course = self.scraper.find_course_info(sigla_curso)
         if course is None:
             # TODO display error
             return
-        course, sections = course
-        # TODO transaction
-        # Updates the database with the new course and its sections.
-        self.insert_course(course, sections)
+        self.insert_course(course)
         self.retrieve_all_courses()
-        return course, sections
+        return course
+
+    def add_course_to_list(self, resultado, secciones):
+        curso = mapCourseToModel(resultado, secciones)
+        self.cursos[curso[c.ID]] = curso
+        self.senal_add_course.emit(curso)
+        self.new_schedule()        
     
     def retrieve_ofg_area(self, area):
         if area == "-":
@@ -174,7 +170,9 @@ class Logic(QWidget):
         self.retrieve_all_courses()
         return courses
     
-    def insert_course(self, course: CourseDTO, sections: list):
+    def insert_course(self, tupla_curso: tuple[CourseDTO, list[SectionDTO]]):
+        # TODO transaction
+        course, sections = tupla_curso
         course_id = self.db.insertar_registro(TABLA_CURSOS, [course])[-1]
         course[c.ID] = course_id
         for section in sections:
@@ -199,7 +197,7 @@ class Logic(QWidget):
         # Filter out the valid combinations
         valid_combinations = filter(self.are_courses_valid, all_combinations)
         return list(valid_combinations)
-
+    
     def are_courses_valid(self, combination: list[GroupedSection]) -> bool:
         schedule_per_day = {}
         for course in combination:  # Catedra con catedra
@@ -211,37 +209,24 @@ class Logic(QWidget):
                         return False
                     else:
                         schedule_per_day[key].extend(value.copy())
-        for i, course in enumerate(combination):  # Catedra con taller
+        if not self.check_course_conflicts(combination, c.SIGLA_TALLER):
+            return False
+        if not self.tope_lab and not self.check_course_conflicts(combination, c.SIGLA_LAB):
+            return False
+        if not self.tope_ayudantia and not self.check_course_conflicts(combination, c.SIGLA_AYUDANTIA):
+            return False
+        return True
+
+    def check_course_conflicts(self, combination: list[GroupedSection], class_type: str) -> bool:
+        for i, course in enumerate(combination):
             for key, modules in course[c.HORARIO][c.SIGLA_CATEDRA].items():
                 for j, other_course in enumerate(combination):
                     if (
                         i != j
-                        and key in other_course[c.HORARIO][c.SIGLA_TALLER]
-                        and any(val in other_course[c.HORARIO][c.SIGLA_TALLER][key] for val in modules)
+                        and key in other_course[c.HORARIO][class_type]
+                        and any(val in other_course[c.HORARIO][class_type][key] for val in modules)
                     ):
                         return False
-        if not self.tope_lab:
-            for i, course in enumerate(combination):  # Catedra con lab
-                for key, modules in course[c.HORARIO][c.SIGLA_CATEDRA].items():
-                    for j, other_course in enumerate(combination):
-                        if (
-                            i != j
-                            and key in other_course[c.HORARIO][c.SIGLA_LAB]
-                            and any(val in other_course[c.HORARIO][c.SIGLA_LAB][key] for val in modules)
-                        ):
-                            return False
-        if not self.tope_ayudantia:
-            for i, course in enumerate(combination):  # Catedra con ayudantia
-                for key, modules in course[c.HORARIO][c.SIGLA_CATEDRA].items():
-                    for j, other_course in enumerate(combination):
-                        if (
-                            i != j
-                            and key in other_course[c.HORARIO][c.SIGLA_AYUDANTIA]
-                            and any(
-                                val in other_course[c.HORARIO][c.SIGLA_AYUDANTIA][key] for val in modules
-                            )
-                        ):
-                            return False
         return True
     
     def new_schedule(self):
