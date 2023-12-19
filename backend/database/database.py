@@ -190,9 +190,13 @@ class Database:
         sql = f"SELECT * FROM {c.TABLA_SECCIONES} WHERE {gc.ID_CURSO} = {id_curso}"
         return self.consulta(sql)
     
-    def recuperar_ofgs(self, area: str) -> list[CourseDTO]:
+    def recuperar_ofgs(self, area: str) -> dict[str, tuple[CourseDTO, list[SectionDTO]]]:
         sql = f"SELECT * FROM {c.TABLA_CURSOS} WHERE {gc.AREA} = '{area}'"
-        return self.consulta(sql)
+        dict_ofgs = {}
+        for row in self.consulta(sql):
+            secciones = self.recuperar_secciones(row[gc.ID])
+            dict_ofgs[row[gc.SIGLA]] = (row, secciones)
+        return dict_ofgs
 
 
 if __name__ == "__main__":

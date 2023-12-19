@@ -107,7 +107,7 @@ COLUMNAS_SECCIONES = [
     {
         "name": c.FORMATO,
         "type": "VARCHAR",
-        "length": 15,
+        "length": 50,
         "not_null": True,
     },
     {

@@ -112,25 +112,24 @@ class Logic(QWidget):
         self.save_current_combination()
         self.ofg_combinations.clear()
         ofgs = self.db.recuperar_ofgs(area)
-        ofg_courses: list[Course] = []
+        ofg_courses = self.get_filtered_courses(ofgs, area)
+        self.add_combinations(ofg_courses)
+        self.emit_ofg_schedule()
+
+    def get_filtered_courses(self, ofgs, area):
         if not ofgs:
             ofgs = self.scrape_ofg_area(area)
             if not ofgs:
-                return # TODO display error
-            for curso, secciones in ofgs.values():
-                filtered_course = self.filter_ofg(curso, secciones)
-                if filtered_course:
-                    ofg_courses.append(filtered_course)
-        else:
-            for ofg in ofgs:
-                secciones = self.db.recuperar_secciones(ofg[c.ID])
-                filtered_course = self.filter_ofg(ofg, secciones)
-                if filtered_course:
-                    ofg_courses.append(filtered_course)
+                return [] # TODO display error
+        return [self.filter_ofg(curso, secciones) for curso, secciones in ofgs.values() if self.filter_ofg(curso, secciones)]
+
+    def add_combinations(self, ofg_courses):
         for ofg in ofg_courses:
             combinaciones = self.generate_course_combinations(self.current_combination + [ofg])
             self.ofg_combinations.extend(combinaciones)
         self.current_ofg_combination_index = 0
+
+    def emit_ofg_schedule(self):
         if self.ofg_combinations:
             self.senal_new_schedule_ofg.emit(self.ofg_combinations[self.current_ofg_combination_index], len(self.ofg_combinations), self.current_ofg_combination_index + 1)
         else:
@@ -139,31 +138,22 @@ class Logic(QWidget):
             self.senal_change_next_btn_state_ofg.emit(True)
     
     def filter_ofg(self, ofg: CourseDTO, secciones: list[SectionDTO]) -> Course | None:
-        ic(ofg)
-        ic(secciones)
-        ic(self.filter)
         if ofg[c.ID] in self.cursos: # Omitir cursos ya agregados
             return None
         if self.filter.creditos != c.CUALQUIERA and int(self.filter.creditos) != ofg[c.CREDITOS]:
-            ic('Filtered by creditos')
             return None
         if self.filter.permite_retiro != c.CUALQUIERA and c.STRING_TO_BOOL[self.filter.permite_retiro] != ofg[c.PERMITE_RETIRO]:
-            ic('Filtered by permite_retiro')
             return None
-        for seccion in secciones.copy():
-            if self.filter.campus != c.CUALQUIERA and self.filter.campus != seccion[c.CAMPUS]:
-                ic('Filtered by campus')
-                secciones.remove(seccion)
-            elif self.filter.formato != c.CUALQUIERA and self.filter.formato != seccion[c.FORMATO]:
-                ic('Filtered by formato')
-                secciones.remove(seccion)
-            elif self.filter.en_ingles != c.CUALQUIERA and c.STRING_TO_BOOL[self.filter.en_ingles] != seccion[c.EN_INGLES]:
-                ic('Filtered by en_ingles')
-                secciones.remove(seccion)
-        if not secciones: # TODO display error
-            ic('Filtered out because no sections left after filtering')
+        secciones = self.filter_sections(secciones)
+        if not secciones:
             return None
         return mapCourseToModel(ofg, secciones)
+
+    def filter_sections(self, secciones: list[SectionDTO]) -> list[SectionDTO]:
+        return [seccion for seccion in secciones if
+                (self.filter.campus == c.CUALQUIERA or self.filter.campus == seccion[c.CAMPUS]) and
+                (self.filter.formato == c.CUALQUIERA or self.filter.formato == seccion[c.FORMATO]) and
+                (self.filter.en_ingles == c.CUALQUIERA or c.STRING_TO_BOOL[self.filter.en_ingles] == seccion[c.EN_INGLES])]
     
     def save_current_combination(self):
         self.current_combination.clear()
