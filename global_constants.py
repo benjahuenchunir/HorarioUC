@@ -51,10 +51,10 @@ OFG = {
 }
 
 CUALQUIERA = "Cualquiera"
-SI = "Si"
-NO = "No"
-OPCIONES_CAMPUS = [CUALQUIERA, "San Joaquin", "Casa Central", "Lo Contador", "Oriente", "Villarrica", "Campus externo"]
+OPCIONES_CAMPUS = [CUALQUIERA, "San Joaquín", "Casa Central", "Lo Contador", "Oriente", "Villarrica", "Campus externo"]
 OPCIONES_FORMATO = [CUALQUIERA, "Presencial", "Remoto", "Híbrido", "Remoto con Act.Presencial"]
 OPCIONES_CREDITOS = [CUALQUIERA, "5", "10"]
-OPCIONES_EN_INGLES = [CUALQUIERA, SI, NO]
-OPCIONES_PERMITE_RETIRO = [CUALQUIERA, SI, NO]
+OPCIONES_EN_INGLES = [CUALQUIERA, "SI", "NO"]
+OPCIONES_PERMITE_RETIRO = [CUALQUIERA, "SI", "NO"]
+
+STRING_TO_BOOL = {"SI": 1, "NO": 0}

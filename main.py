@@ -45,6 +45,8 @@ class HorarioUC:
         self.backend.senal_update_schedule_ofg.connect(self.ofg_window.update_schedule)
         self.ofg_window.btn_choose_ofg.clicked.connect(self.backend.choose_ofg)
         self.ofg_window.btn_choose_ofg.clicked.connect(self.change_to_schedule)
+        self.ofg_window.senal_cambiar_filtro.connect(self.ofg_window.change_filters)
+        self.ofg_window.senal_filtrar.connect(self.backend.update_ofg_filter)
 
     def change_to_ofgs(self):
         self.schedule_window.hide()

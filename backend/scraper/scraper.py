@@ -4,7 +4,6 @@ from collections import defaultdict
 from icecream import ic
 from backend.database.tables import CourseDTO, SectionDTO
 import global_constants as c
-import backend.scraper.constants as p
 import json
 
 
@@ -37,10 +36,10 @@ class Scraper:
             cells = row.find_all("td")
             nrc = int(cells[0].text.strip())
             sigla = cells[1].text.strip()
-            permite_retiro = p.STRING_TO_BOOL[cells[2].text.strip()]
-            en_ingles = p.STRING_TO_BOOL[cells[3].text.strip()]
+            permite_retiro = c.STRING_TO_BOOL[cells[2].text.strip()]
+            en_ingles = c.STRING_TO_BOOL[cells[3].text.strip()]
             section = int(cells[4].text.strip())
-            aprob_especial = p.STRING_TO_BOOL[cells[5].text.strip()]
+            aprob_especial = c.STRING_TO_BOOL[cells[5].text.strip()]
             area = cells[6].text.strip()
             formato = cells[7].text.strip()
             name = cells[9].text.strip()

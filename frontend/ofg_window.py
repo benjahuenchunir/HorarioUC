@@ -19,59 +19,75 @@ from PyQt5.QtWidgets import (
     QAction,
     QDockWidget,
     QMainWindow,
-    QFormLayout
+    QFormLayout,
 )
 from PyQt5.QtCore import pyqtSignal, QSize, Qt
 from PyQt5.QtGui import QColor, QIcon
 import frontend.constants as p
 import global_constants as gc
-from frontend.widgets import DoubleLineWidget, CourseInfoListElement, CourseInfoListHeader, FilterComboBox
-from backend.models import GroupedSection
+from frontend.widgets import (
+    DoubleLineWidget,
+    CourseInfoListElement,
+    CourseInfoListHeader,
+    FilterComboBox,
+)
+from backend.models import GroupedSection, Filter
 
 
 class OFGWindow(QMainWindow):
     senal_cambiar_area = pyqtSignal(str)
     senal_cambiar_filtro = pyqtSignal()
+    senal_filtrar = pyqtSignal(Filter, str)
 
     def __init__(self):
         super().__init__()
         self.setGeometry(0, 0, 1280, 720)
         self.setStyleSheet(p.DARK_MODE)
-        
+
         central_widget = QWidget(self)
         layout = QVBoxLayout(central_widget)
         self.setCentralWidget(central_widget)
 
         self.toolbar = QToolBar(self)
         self.addToolBar(self.toolbar)
-        self.back_action = QAction(QIcon(p.PATH_BACK_ICON), 'Back', self)
+        self.back_action = QAction(QIcon(p.PATH_BACK_ICON), "Back", self)
         self.toolbar.addAction(self.back_action)
-        self.side_menu_action = QAction(QIcon(p.PATH_FILTER_ICON), 'Menu', self)
+        self.side_menu_action = QAction(QIcon(p.PATH_FILTER_ICON), "Menu", self)
         self.toolbar.addAction(self.side_menu_action)
         self.side_menu_action.triggered.connect(self.open_side_menu)
-        
+
         self.dock_widget = QDockWidget("Filtros", self)
         self.dock_widget.setAllowedAreas(Qt.RightDockWidgetArea)
         self.addDockWidget(Qt.RightDockWidgetArea, self.dock_widget)
         self.dock_widget.hide()
-        
+
         dock_widget_content = QWidget(self.dock_widget)
         dock_widget_layout = QFormLayout(dock_widget_content)
 
-        self.campus_filter = FilterComboBox(gc.OPCIONES_CAMPUS, self.senal_cambiar_filtro, self)
-        self.format_filter = FilterComboBox(gc.OPCIONES_FORMATO, self.senal_cambiar_filtro, self)
-        self.credits_filter = FilterComboBox(gc.OPCIONES_CREDITOS, self.senal_cambiar_filtro, self)
-        self.english_filter = FilterComboBox(gc.OPCIONES_EN_INGLES, self.senal_cambiar_filtro, self)
-        self.withdrawal_filter = FilterComboBox(gc.OPCIONES_PERMITE_RETIRO, self.senal_cambiar_filtro, self)
+        self.campus_filter = FilterComboBox(
+            gc.OPCIONES_CAMPUS, self.senal_cambiar_filtro, self
+        )
+        self.format_filter = FilterComboBox(
+            gc.OPCIONES_FORMATO, self.senal_cambiar_filtro, self
+        )
+        self.credits_filter = FilterComboBox(
+            gc.OPCIONES_CREDITOS, self.senal_cambiar_filtro, self
+        )
+        self.english_filter = FilterComboBox(
+            gc.OPCIONES_EN_INGLES, self.senal_cambiar_filtro, self
+        )
+        self.withdrawal_filter = FilterComboBox(
+            gc.OPCIONES_PERMITE_RETIRO, self.senal_cambiar_filtro, self
+        )
 
         dock_widget_layout.addRow("Campus", self.campus_filter)
         dock_widget_layout.addRow("Formato", self.format_filter)
         dock_widget_layout.addRow("Creditos", self.credits_filter)
         dock_widget_layout.addRow("En ingles", self.english_filter)
         dock_widget_layout.addRow("Permite retiro", self.withdrawal_filter)
-        
+
         self.dock_widget.setWidget(dock_widget_content)
-        
+
         self.qcb_ofg_areas = QComboBox(self)
         self.qcb_ofg_areas.addItem("-")
         for area in gc.OFG:
@@ -118,10 +134,16 @@ class OFGWindow(QMainWindow):
             self.dock_widget.hide()
         else:
             self.dock_widget.show()
-    
+
     def change_filters(self):
-        print("change filters")
-    
+        self.senal_filtrar.emit(Filter(
+            campus=self.campus_filter.currentText(),
+            formato=self.format_filter.currentText(),
+            creditos=self.credits_filter.currentText(),
+            en_ingles=self.english_filter.currentText(),
+            permite_retiro=self.withdrawal_filter.currentText(),
+        ), self.qcb_ofg_areas.currentText())
+
     def iniciar(self):
         self.lbl_combinations.clear()
         self.lbl_current_ofg.clear()
@@ -195,7 +217,7 @@ class OFGWindow(QMainWindow):
         combination: list[GroupedSection],
         cantidad_combinaciones,
         combinacion_actual,
-    ):  
+    ):
         self.update_combinations_label(cantidad_combinaciones)
         self.update_current_index_label(combinacion_actual)
         self.update_schedule(combination)

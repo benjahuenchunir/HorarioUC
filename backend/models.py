@@ -1,5 +1,6 @@
 from typing import TypedDict
 from dataclasses import dataclass
+import global_constants as gc
 
 class GroupedSection(TypedDict):
     id_curso: int
@@ -26,9 +27,8 @@ class Course(TypedDict):
 
 @dataclass
 class Filter():
-    campus: str
-    formato: str
-    creditos: str
-    en_ingles: str
-    permite_retiro: str
-
+    campus: str = gc.OPCIONES_CAMPUS[0]
+    formato: str = gc.OPCIONES_FORMATO[0]
+    creditos: str = gc.OPCIONES_CREDITOS[0]
+    en_ingles: str = gc.OPCIONES_EN_INGLES[0]
+    permite_retiro: str = gc.OPCIONES_PERMITE_RETIRO[0]
