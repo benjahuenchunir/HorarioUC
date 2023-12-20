@@ -59,3 +59,6 @@ OPCIONES_PERMITE_RETIRO = [CUALQUIERA, "SI", "NO"]
 
 STRING_TO_BOOL = {"SI": 1, "NO": 0}
 PATH_SAVED_COMBINATIONS = "saved_combinations/"
+
+CURSOS = "cursos"
+COMBINACION_ACTUAL = "combinacion_actual"

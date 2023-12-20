@@ -303,24 +303,28 @@ class Logic(QWidget):
             return
         courses = []
         for course in self.combinaciones[self.current_course_index]:
-            course_info = {
-                c.SIGLA: course[c.SIGLA],
-                c.SECCION: course[c.SECCIONES][0],
-            }
-            courses.append(course_info)
+            courses.append(course[c.SIGLA])
+        data = {
+            c.COMBINACION_ACTUAL: self.current_course_index,
+            c.CURSOS: courses
+        }
         with open(f'{c.PATH_SAVED_COMBINATIONS}{nombre_combinacion}.json', 'w') as f:
-            json.dump(courses, f)
+            json.dump(data, f)
         self.senal_actualizar_combinaciones_guardadas.emit()
     
     def load_combination(self, nombre_combinacion):
-        # TODO also load sections
         self.cursos.clear()
         self.senal_limpiar_lista_cursos.emit()
         with open(f'{c.PATH_SAVED_COMBINATIONS}{nombre_combinacion}', 'r') as f:
-            courses = json.load(f)
-        for course in courses[0:-1]:
-            self.retrieve_course(course[c.SIGLA], False)
-        self.retrieve_course(courses[-1][c.SIGLA], True)
+            data = json.load(f)
+        for course in data[c.CURSOS][0:-1]:
+            self.retrieve_course(course, False)
+        self.retrieve_course(data[c.CURSOS][-1], True)
+        self.current_course_index = data[c.COMBINACION_ACTUAL]
+        self.senal_update_schedule.emit(self.combinaciones[self.current_course_index])
+        self.senal_update_index.emit(self.current_course_index + 1)
+        self.senal_change_next_btn_state.emit(not self.current_course_index == len(self.combinaciones) - 1)
+        self.senal_change_prev_btn_state.emit(not self.current_course_index == 0)
     
     def delete_combination(self, nombre_combinacion):
         os.remove(f'{c.PATH_SAVED_COMBINATIONS}{nombre_combinacion}')
