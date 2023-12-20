@@ -16,13 +16,14 @@ from PyQt5.QtWidgets import (
     QAbstractItemView,
     QCompleter,
     QMainWindow,
-    QMenuBar,
     QAction,
     QDockWidget,
-    QToolBar
+    QToolBar,
+    QInputDialog,
+    QSizePolicy
 )
 from PyQt5.QtCore import pyqtSignal, QSize, Qt, QDir
-from PyQt5.QtGui import QColor, QIcon, QFont
+from PyQt5.QtGui import QColor, QIcon
 from frontend.widgets import (
     CourseListElement,
     CourseInfoListElement,
@@ -42,7 +43,10 @@ class ScheduleWindow(QMainWindow):
     senal_buscar_ofgs = pyqtSignal()
     senal_cambiar_campus = pyqtSignal(str)
     senal_cambiar_creditos = pyqtSignal(str)
-
+    senal_guardar_combinacion = pyqtSignal(str)
+    senal_cargar_combinacion = pyqtSignal(str)
+    senal_eliminar_combinacion = pyqtSignal(str)
+    
     def __init__(self):
         super().__init__()
         self.setGeometry(0, 0, 1280, 720)
@@ -72,13 +76,17 @@ class ScheduleWindow(QMainWindow):
         checkbox_group = TopesFilter(dock_widget_content)
         dock_widget_layout.addWidget(checkbox_group)
         
+        file_list_title_layout = QHBoxLayout()
         file_list_title = QLabel("Guardados", dock_widget_content)
-        dock_widget_layout.addWidget(file_list_title)
-        file_list = QListWidget(dock_widget_content)
-        directory = QDir(c.PATH_SAVED_COMBINATIONS)
-        files = directory.entryList(QDir.Files)
-        file_list.addItems(files)
-        dock_widget_layout.addWidget(file_list)
+        file_list_title.setStyleSheet("background-color: #2b2b2b; font-weight: bold;")
+        file_list_title_layout.addWidget(file_list_title)
+        add_button = QPushButton("+", dock_widget_content)
+        add_button.setFixedSize(30, 30)
+        add_button.clicked.connect(self.prompt_save_name)
+        file_list_title_layout.addWidget(add_button)
+        dock_widget_layout.addLayout(file_list_title_layout)
+        self.file_list = QListWidget(dock_widget_content)
+        dock_widget_layout.addWidget(self.file_list)
 
         self.dock_widget.setWidget(dock_widget_content)
 
@@ -130,12 +138,46 @@ class ScheduleWindow(QMainWindow):
 
         self.btn_add.clicked.connect(self.buscar_sigla)
         btn_ofgs.clicked.connect(self.enviar_buscar_ofgs)
+        
+        self.update_saved_combinations()
     
     def toggle_side_menu(self):
         if self.dock_widget.isVisible():
             self.dock_widget.hide()
         else:
             self.dock_widget.show()
+    
+    def prompt_save_name(self):
+        name, ok = QInputDialog.getText(self, 'Guardar combinacion', 'Ingresa un nombre:')
+        if ok:
+            self.senal_guardar_combinacion.emit(name)
+
+    def update_saved_combinations(self):
+        directory = QDir(gc.PATH_SAVED_COMBINATIONS)
+        files = directory.entryList(QDir.Files)
+        self.file_list.clear()
+        for file in files:
+            item = QListWidgetItem(self.file_list)
+            widget = QWidget()
+            layout = QHBoxLayout(widget)
+            delete_button = QPushButton(QIcon(c.PATH_DELETE_ICON), "")
+            delete_button.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
+            delete_button.setMaximumWidth(30)
+            delete_button.clicked.connect(lambda checked, file=file: self.senal_eliminar_combinacion.emit(file))
+            layout.addWidget(delete_button, 0)
+            label = QLabel(file.split(".")[0])
+            label.setStyleSheet("background-color: #2b2b2b;")
+            label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+            load_button = QPushButton(QIcon(c.PATH_LOAD_ICON), "")
+            load_button.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
+            load_button.setMaximumWidth(60)
+            load_button.clicked.connect(lambda checked, file=file: self.senal_cargar_combinacion.emit(file))
+            layout.addWidget(label, 1)
+            layout.addWidget(load_button, 0)
+            widget.setLayout(layout)
+            item.setSizeHint(widget.sizeHint())
+            self.file_list.addItem(item)
+            self.file_list.setItemWidget(item, widget)
     
     def add_suggestions(self, courses: list[Course]):
         self.txt_sigla.clear()

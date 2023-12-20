@@ -31,6 +31,11 @@ class HorarioUC:
         self.backend.senal_update_index.connect(self.schedule_window.update_current_index_label)
         self.schedule_window.senal_buscar_ofgs.connect(self.change_to_ofgs)
         self.backend.senal_cambiar_seccion.connect(self.schedule_window.update_course_section)
+        self.schedule_window.senal_guardar_combinacion.connect(self.backend.save_combination)
+        self.backend.senal_actualizar_combinaciones_guardadas.connect(self.schedule_window.update_saved_combinations)
+        self.schedule_window.senal_cargar_combinacion.connect(self.backend.load_combination)
+        self.backend.senal_limpiar_lista_cursos.connect(self.schedule_window.list_courses.clear)
+        self.schedule_window.senal_eliminar_combinacion.connect(self.backend.delete_combination)
     
     def conectar_senales_ofg(self):
         self.ofg_window.senal_cambiar_area.connect(self.backend.retrieve_ofg_area)
@@ -68,6 +73,5 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     
     horario = HorarioUC()
-    horario.backend.retrieve_course("IIC2233")
     
     sys.exit(app.exec())

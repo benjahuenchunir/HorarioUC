@@ -13,6 +13,7 @@ from backend.models import Course, GroupedSection, Filter
 from PyQt5.QtWidgets import QWidget, QApplication
 from PyQt5.QtCore import pyqtSignal
 from itertools import product
+import json
 
 class Logic(QWidget):
     senal_enviar_cursos = pyqtSignal(list)
@@ -23,6 +24,8 @@ class Logic(QWidget):
     senal_change_prev_btn_state = pyqtSignal(bool)
     senal_update_index = pyqtSignal(int)
     senal_cambiar_seccion = pyqtSignal(int, int)
+    senal_actualizar_combinaciones_guardadas = pyqtSignal()
+    senal_limpiar_lista_cursos = pyqtSignal()
     
     senal_new_schedule_ofg = pyqtSignal(tuple, int, int)
     senal_update_schedule_ofg = pyqtSignal(tuple)
@@ -66,7 +69,7 @@ class Logic(QWidget):
             cursos_model.append(mapCourseToModel(curso, secciones))
         self.senal_enviar_cursos.emit(cursos_model)
 
-    def retrieve_course(self, sigla_curso: str):
+    def retrieve_course(self, sigla_curso: str, recalcular_combinaciones=True):
         if not sigla_curso:
             return
         sigla_curso = sigla_curso.upper()
@@ -81,7 +84,7 @@ class Logic(QWidget):
         else:
             print("El curso existe en la base de datos")
             secciones = self.retrieve_sections(resultado[c.ID])
-        self.add_course_to_list(resultado, secciones)
+        self.add_course_to_list(resultado, secciones, recalcular_combinaciones)
 
     def retrieve_sections(self, course_id):
         return self.db.recuperar_secciones(course_id)
@@ -96,11 +99,12 @@ class Logic(QWidget):
         self.retrieve_all_courses()
         return course
 
-    def add_course_to_list(self, resultado, secciones):
+    def add_course_to_list(self, resultado, secciones, recalcular_combinaciones):
         curso = mapCourseToModel(resultado, secciones)
         self.cursos[curso[c.ID]] = curso
         self.senal_add_course.emit(curso)
-        self.new_schedule()        
+        if recalcular_combinaciones:
+            self.new_schedule()        
     
     def retrieve_ofg_area(self, area):
         if area == "-":
@@ -283,6 +287,7 @@ class Logic(QWidget):
         self.senal_change_next_btn_state_ofg.emit(True)
     
     def choose_ofg(self):
+        # TODO this currently resets the combinations
         current_combination = self.ofg_combinations[self.current_ofg_combination_index]
         ofg = next(course for course in current_combination if course[c.ID_CURSO] not in [course[c.ID] for course in self.current_combination])
         self.retrieve_course(ofg[c.SIGLA])
@@ -291,6 +296,37 @@ class Logic(QWidget):
     def update_ofg_filter(self, filter: Filter, area: str):
         self.filter = filter
         self.retrieve_ofg_area(area)
+    
+    def save_combination(self, nombre_combinacion):
+        if not self.combinaciones: # Evita que se guarde una combinacion vacia
+            # TODO display error
+            return
+        courses = []
+        for course in self.combinaciones[self.current_course_index]:
+            course_info = {
+                c.SIGLA: course[c.SIGLA],
+                c.SECCION: course[c.SECCIONES][0],
+            }
+            courses.append(course_info)
+        with open(f'{c.PATH_SAVED_COMBINATIONS}{nombre_combinacion}.json', 'w') as f:
+            json.dump(courses, f)
+        self.senal_actualizar_combinaciones_guardadas.emit()
+    
+    def load_combination(self, nombre_combinacion):
+        # TODO also load sections
+        self.cursos.clear()
+        self.senal_limpiar_lista_cursos.emit()
+        with open(f'{c.PATH_SAVED_COMBINATIONS}{nombre_combinacion}', 'r') as f:
+            courses = json.load(f)
+        for course in courses[0:-1]:
+            self.retrieve_course(course[c.SIGLA], False)
+        self.retrieve_course(courses[-1][c.SIGLA], True)
+    
+    def delete_combination(self, nombre_combinacion):
+        os.remove(f'{c.PATH_SAVED_COMBINATIONS}{nombre_combinacion}')
+        self.senal_actualizar_combinaciones_guardadas.emit()
+        
+        
         
 
 

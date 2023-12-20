@@ -97,7 +97,7 @@ DARK_MODE = """
             }
             QLineEdit {
                 border: 2px solid #5a5a5a;
-                border-radius: 10px;
+                border-radius: 5px;
                 padding: 0 8px;
                 background: #3a3a3a;
                 color: #ffffff;
@@ -142,4 +142,5 @@ PATH_ASSETS = "frontend/assets/"
 PATH_BACK_ICON = PATH_ASSETS + "back_icon.png"
 PATH_FILTER_ICON = PATH_ASSETS + "filter_icon.png"
 PATH_MENU_ICON = PATH_ASSETS + "menu_icon.png"
-PATH_SAVED_COMBINATIONS = "saved_combinations/"
+PATH_LOAD_ICON = PATH_ASSETS + "load_icon.png"
+PATH_DELETE_ICON = PATH_ASSETS + "delete_icon.png"
