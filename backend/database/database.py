@@ -28,8 +28,7 @@ class Database:
                 self.conector = mysql.connector.connect(
                     host=self.host, 
                     user=self.usuario, 
-                    password=self.contrasena, 
-                    database=c.DATABASE_NAME
+                    password=self.contrasena
                 )
                 self.cursor = self.conector.cursor(dictionary=True)
                 try:

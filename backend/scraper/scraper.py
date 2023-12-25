@@ -1,7 +1,9 @@
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
 import requests
 from bs4 import BeautifulSoup
 from collections import defaultdict
-from icecream import ic
 from backend.database.tables import CourseDTO, SectionDTO
 import global_constants as c
 import json
@@ -36,17 +38,13 @@ class Scraper:
             cells = row.find_all("td")
             nrc = int(cells[0].text.strip())
             sigla = cells[1].text.strip()
-            permite_retiro = c.STRING_TO_BOOL[cells[2].text.strip()]
             en_ingles = c.STRING_TO_BOOL[cells[3].text.strip()]
             section = int(cells[4].text.strip())
-            aprob_especial = c.STRING_TO_BOOL[cells[5].text.strip()]
-            area = cells[6].text.strip()
             formato = cells[7].text.strip()
             name = cells[9].text.strip()
             teacher = cells[10].text.strip()
             campus = cells[11].text.strip()
-            creditos = int(cells[12].text.strip())
-            schedules = cells[16].table.find_all("tr")
+            schedules = cells[16].table.find_all("tr")   
             catedra = defaultdict(list)
             ayudantia = defaultdict(list)
             lab = defaultdict(list)
@@ -72,6 +70,14 @@ class Scraper:
                         print(sigla)
                         print(tipo)
             if sigla not in courses:
+                permite_retiro = c.STRING_TO_BOOL[cells[2].text.strip()]
+                aprob_especial = c.STRING_TO_BOOL[cells[5].text.strip()]
+                area = cells[6].text.strip()
+                creditos = int(cells[12].text.strip())
+                ajax_url = 'https://buscacursos.uc.cl/' + cells[1].get('rel')
+                ajax_response = requests.get(ajax_url)
+                tooltip_soup = BeautifulSoup(ajax_response.text, "html.parser")
+                tooltip = tooltip_soup.find("div", style="height:116px;overflow:auto;")
                 courses[sigla] = (CourseDTO(
                     id=-1,
                     sigla=sigla,
@@ -80,7 +86,7 @@ class Scraper:
                     permite_retiro=permite_retiro,
                     area=area,
                     creditos=creditos,
-                    descripcion="",
+                    descripcion=tooltip.text.strip(),
                 ), [])
             courses[sigla][-1].append(
                 SectionDTO(
@@ -101,7 +107,7 @@ class Scraper:
             )
         return courses
 
-
 if __name__ == "__main__":
     l = Scraper()
-    l.find_course_info("MAT1630")
+    print(l.find_course_info("MAT1630"))
+    
