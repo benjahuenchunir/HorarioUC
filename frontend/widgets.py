@@ -1,4 +1,4 @@
-import typing
+import textwrap
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import (
     QApplication,
@@ -188,7 +188,8 @@ class CourseListElement(QWidget):
         self.qcb_section_selection.currentIndexChanged.connect(self.cambiar_seccion)
         self.btn_delete.clicked.connect(self.borrar)
         
-        extra_data = f"<b>Permite Retiro:</b> {p.BOOL_TO_STR[curso[c.PERMITE_RETIRO]]}<br><b>Aprob Especial:</b> {p.BOOL_TO_STR[curso[c.APROB_ESPECIAL]]}<br><b>Area:</b> {curso[c.AREA]}<br><b>Creditos:</b> {curso[c.CREDITOS]}<br><b>Descripcion:</b> {curso[c.DESCRIPCION]}"
+        wrapped_description = '<br>'.join(textwrap.wrap(curso[c.DESCRIPCION], width=80))
+        extra_data = f"<b>Permite Retiro:</b> {p.BOOL_TO_STR[curso[c.PERMITE_RETIRO]]}<br><b>Aprob Especial:</b> {p.BOOL_TO_STR[curso[c.APROB_ESPECIAL]]}<br><b>Area:</b> {curso[c.AREA]}<br><b>Creditos:</b> {curso[c.CREDITOS]}<br><b>Descripcion:</b> {wrapped_description}"
         self.tooltip = CustomTooltip(self)
         self.tooltip.setText(extra_data)
 
@@ -240,6 +241,7 @@ class OFGInfoWidget(QWidget):
         self.permite_retiro_label = BackgroundQLabel()
         self.aprob_especial_label = BackgroundQLabel()
         self.descripcion_label = BackgroundQLabel()
+        self.descripcion_label.setWordWrap(True)
 
         self.layout.addRow(self.sigla_label)
         self.layout.addRow(self.name_label)
@@ -255,6 +257,14 @@ class OFGInfoWidget(QWidget):
         self.aprob_especial_label.setText(p.BOOL_TO_STR[course_info[c.APROB_ESPECIAL]])
         self.creditos_label.setText(str(course_info[c.CREDITOS]))
         self.descripcion_label.setText(course_info[c.DESCRIPCION])
+    
+    def clear(self):
+        self.sigla_label.setText('<h1>-</h1>')
+        self.name_label.setText('<h1>-</h1>')
+        self.creditos_label.setText("")
+        self.permite_retiro_label.setText("")
+        self.aprob_especial_label.setText("")
+        self.descripcion_label.setText("")
 
 
 if __name__ == "__main__":

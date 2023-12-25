@@ -155,6 +155,7 @@ class OFGWindow(QMainWindow):
         self.lbl_combinations.clear()
         self.lbl_current_ofg.clear()
         self.list_current_courses.clear()
+        self.ofg_info_widget.clear()
         self.tb_schedule.clearContents()
         self.qcb_ofg_areas.setCurrentIndex(0)
         self.btn_next.setEnabled(False)

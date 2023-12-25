@@ -175,9 +175,7 @@ class Database:
                 self.cursor.execute(sql)
                 self.conector.commit()
                 inserted_id = self.cursor.lastrowid
-                print(f"Inserción exitosa. ID: {inserted_id}")
                 inserted_ids.append(inserted_id)
-                print(f"Registro {registro} añadido a la tabla.")
             except Exception as e:
                 print(
                     f"Ocurrió un error al intentar insertar el registro {registro}:\n {e}"
