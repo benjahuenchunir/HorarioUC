@@ -4,8 +4,7 @@ DATABASE_NAME = "horario_uc"
 DATABASE_CREDENTIALS = {
     "host": "localhost",
     "user": "root",
-    "password": "",
-    "database": DATABASE_NAME
+    "password": ""
 }
 
 TABLA_CURSOS = "cursos"

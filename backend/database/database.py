@@ -9,16 +9,39 @@ from backend.database.tables import SectionDTO, CourseDTO
 class Database:
     # Conexión y cursor
     def __init__(self):
-        self.conector = mysql.connector.connect(**c.DATABASE_CREDENTIALS)
-        self.cursor = self.conector.cursor(dictionary=True)
         self.host = c.DATABASE_CREDENTIALS["host"]
         self.usuario = c.DATABASE_CREDENTIALS["user"]
         self.contrasena = c.DATABASE_CREDENTIALS["password"]
-        self.database = c.DATABASE_CREDENTIALS["database"]
         self.conexion_cerrada = False
-        # Avisa de que se abrió la conexión con el servidor
-        print("Se abrió la conexión con el servidor.")
-        self.crear_dependencias()
+        
+        try:
+            self.conector = mysql.connector.connect(
+                host=self.host, 
+                user=self.usuario, 
+                password=self.contrasena, 
+                database=c.DATABASE_NAME
+            )
+            self.cursor = self.conector.cursor(dictionary=True)
+            print("Se abrió la conexión con el servidor.")
+        except mysql.connector.Error as err:
+            if err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:
+                self.conector = mysql.connector.connect(
+                    host=self.host, 
+                    user=self.usuario, 
+                    password=self.contrasena, 
+                    database=c.DATABASE_NAME
+                )
+                self.cursor = self.conector.cursor(dictionary=True)
+                try:
+                    self.cursor.execute(f"CREATE DATABASE IF NOT EXISTS {c.DATABASE_NAME}")
+                    print(f"Se creó la base de datos {c.DATABASE_NAME} o ya estaba creada.")
+                except:
+                    print(f"Ocurrió un error al intentar crear la base de datos {c.DATABASE_NAME}.")
+                self.conector.database = c.DATABASE_NAME
+                print("Se creó la base de datos y se abrió la conexión con el servidor.")
+                self.crear_tablas()
+            else:
+                raise Exception(f"Failed to connect to MySQL: {err}")
 
     # Decorador para el cierre del cursor y la base de datos
     def conexion(funcion_parametro):
@@ -26,7 +49,7 @@ class Database:
             try:
                 if self.conexion_cerrada:
                     self.conector = mysql.connector.connect(
-                        host=self.host, user=self.usuario, password=self.contrasena, database=self.database
+                        host=self.host, user=self.usuario, password=self.contrasena, database=c.DATABASE_NAME
                     )
                     self.cursor = self.conector.cursor(dictionary=True)
                     self.conexion_cerrada = False
@@ -47,15 +70,6 @@ class Database:
                     self.conexion_cerrada = True
 
         return interno
-
-    # Crear bases de datos
-    @conexion
-    def crear_bd(self, nombre_bd):
-        try:
-            self.cursor.execute(f"CREATE DATABASE IF NOT EXISTS {nombre_bd}")
-            print(f"Se creó la base de datos {nombre_bd} o ya estaba creada.")
-        except:
-            print(f"Ocurrió un error al intentar crear la base de datos {nombre_bd}.")
 
     @conexion
     def crear_tabla(self, nombre_tabla: str, columnas: list[dict]):
@@ -171,8 +185,7 @@ class Database:
                 )
         return inserted_ids
 
-    def crear_dependencias(self):
-        self.crear_bd(c.DATABASE_NAME)
+    def crear_tablas(self):
         self.crear_tabla(c.TABLA_CURSOS, c.COLUMNAS_CURSOS)
         self.crear_tabla(c.TABLA_SECCIONES, c.COLUMNAS_SECCIONES)
     
