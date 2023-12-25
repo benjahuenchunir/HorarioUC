@@ -25,6 +25,14 @@ class Course(TypedDict):
     descripcion: str
     secciones: list[GroupedSection]
 
+class OFG(TypedDict):
+    sigla: str
+    nombre: str
+    creditos: int
+    permite_retiro: bool
+    aprob_especial: bool
+    descripcion: str
+
 @dataclass
 class Filter():
     campus: str = gc.OPCIONES_CAMPUS[0]

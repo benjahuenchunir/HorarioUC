@@ -9,7 +9,7 @@ import global_constants as c
 from backend.scraper.scraper import Scraper
 from mappers import mapCourseToModel
 from icecream import ic
-from backend.models import Course, GroupedSection, Filter
+from backend.models import Course, GroupedSection, Filter, OFG
 from PyQt5.QtWidgets import QWidget, QApplication
 from PyQt5.QtCore import pyqtSignal
 from itertools import product
@@ -29,6 +29,7 @@ class Logic(QWidget):
     
     senal_new_schedule_ofg = pyqtSignal(tuple, int, int)
     senal_update_schedule_ofg = pyqtSignal(tuple)
+    senal_update_ofg_info = pyqtSignal(dict)
     senal_change_next_btn_state_ofg = pyqtSignal(bool)
     senal_change_prev_btn_state_ofg = pyqtSignal(bool)
     senal_update_index_ofg = pyqtSignal(int)
@@ -132,6 +133,7 @@ class Logic(QWidget):
     def emit_ofg_schedule(self):
         if self.ofg_combinations:
             self.senal_new_schedule_ofg.emit(self.ofg_combinations[self.current_ofg_combination_index], len(self.ofg_combinations), self.current_ofg_combination_index + 1)
+            self.update_ofg_info()
         else:
             self.senal_new_schedule_ofg.emit((), 0, 0)
         if len(self.ofg_combinations) > 1:
@@ -276,6 +278,7 @@ class Logic(QWidget):
         if self.current_ofg_combination_index == len(self.ofg_combinations) - 1:
             self.senal_change_next_btn_state_ofg.emit(False)
         self.senal_update_schedule_ofg.emit(self.ofg_combinations[self.current_ofg_combination_index])
+        self.update_ofg_info()
         self.senal_change_prev_btn_state_ofg.emit(True)
     
     def decrease_ofg_index(self):
@@ -284,12 +287,32 @@ class Logic(QWidget):
         if self.current_ofg_combination_index == 0:
             self.senal_change_prev_btn_state_ofg.emit(False)
         self.senal_update_schedule_ofg.emit(self.ofg_combinations[self.current_ofg_combination_index])
-        self.senal_change_next_btn_state_ofg.emit(True)
+        self.update_ofg_info()
+        self.senal_change_next_btn_state_ofg.emit(True)        
+        
+    def update_ofg_info(self):
+        ofg = self.find_ofg()
+        ofg_course_info = self.db.recuperar_curso(ofg[c.SIGLA])
+        if ofg_course_info is None:
+            print("No se encontró el curso en la base de datos") # TODO display error
+            return
+        ofg_info = OFG(
+            sigla=ofg_course_info[c.SIGLA],
+            nombre=ofg_course_info[c.NOMBRE],
+            creditos=ofg_course_info[c.CREDITOS],
+            permite_retiro=ofg_course_info[c.PERMITE_RETIRO],
+            aprob_especial=ofg_course_info[c.APROB_ESPECIAL],
+            descripcion=ofg_course_info[c.DESCRIPCION],
+        )
+        self.senal_update_ofg_info.emit(ofg_info)
+    
+    def find_ofg(self) -> GroupedSection:
+        current_combination = self.ofg_combinations[self.current_ofg_combination_index]
+        return next(course for course in current_combination if course[c.ID_CURSO] not in [course[c.ID] for course in self.current_combination])
     
     def choose_ofg(self):
         # TODO this currently resets the combinations
-        current_combination = self.ofg_combinations[self.current_ofg_combination_index]
-        ofg = next(course for course in current_combination if course[c.ID_CURSO] not in [course[c.ID] for course in self.current_combination])
+        ofg = self.find_ofg()
         self.retrieve_course(ofg[c.SIGLA])
         self.senal_cambiar_seccion.emit(ofg[c.ID_CURSO], ofg[c.SECCIONES][0])
     

@@ -30,6 +30,7 @@ from frontend.widgets import (
     CourseInfoListElement,
     CourseInfoListHeader,
     FilterComboBox,
+    OFGInfoWidget
 )
 from backend.models import GroupedSection, Filter
 
@@ -120,10 +121,14 @@ class OFGWindow(QMainWindow):
         self.tb_schedule.setHorizontalHeaderLabels(p.DIAS.keys())
         self.tb_schedule.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.set_lunch_line()
+        right_layout = QVBoxLayout()
+        self.ofg_info_widget = OFGInfoWidget(self)
+        right_layout.addWidget(self.ofg_info_widget)
         self.list_current_courses = QListWidget(self)
         self.list_current_courses.setSelectionMode(QAbstractItemView.NoSelection)
+        right_layout.addWidget(self.list_current_courses)
         layout_courses.addWidget(self.tb_schedule)
-        layout_courses.addWidget(self.list_current_courses)
+        layout_courses.addLayout(right_layout)
         layout.addLayout(layout_courses)
         self.btn_choose_ofg = QPushButton("Elegir OFG", self)
         self.btn_choose_ofg.setEnabled(False)

@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import (
     QComboBox,
     QGroupBox,
     QCheckBox,
+    QFormLayout
 )
 from PyQt5.QtCore import Qt
 import sys
@@ -17,6 +18,12 @@ from backend.models import GroupedSection, Course
 import global_constants as c
 import frontend.constants as p
 from PyQt5.QtGui import QFont
+
+
+class BackgroundQLabel(QLabel):
+    def __init__(self, text="", parent=None):
+        super().__init__(text, parent)
+        self.setStyleSheet("background-color: #2b2b2b")
 
 
 class DoubleLineWidget(QWidget):
@@ -219,6 +226,35 @@ class TopesFilter(QGroupBox):
         checkbox_layout.addWidget(checkbox2)
         checkbox_layout.addWidget(checkbox3)
         checkbox_layout.addWidget(checkbox4)
+
+
+class OFGInfoWidget(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.layout = QFormLayout(self)
+
+        self.sigla_label = BackgroundQLabel('<h1>-</h1>')
+        self.name_label = BackgroundQLabel('<h1>-</h1>')
+        self.creditos_label = BackgroundQLabel()
+        self.permite_retiro_label = BackgroundQLabel()
+        self.aprob_especial_label = BackgroundQLabel()
+        self.descripcion_label = BackgroundQLabel()
+
+        self.layout.addRow(self.sigla_label)
+        self.layout.addRow(self.name_label)
+        self.layout.addRow("Creditos:", self.creditos_label)
+        self.layout.addRow("Permite Retiro:", self.permite_retiro_label)
+        self.layout.addRow("Aprob Especial:", self.aprob_especial_label)
+        self.layout.addRow("Descripcion:", self.descripcion_label)
+
+    def set_course_info(self, course_info):
+        self.sigla_label.setText(f"<h1>{course_info[c.SIGLA]}</h1>")
+        self.name_label.setText(f"<h1>{course_info[c.NOMBRE]}</h1>")
+        self.permite_retiro_label.setText(p.BOOL_TO_STR[course_info[c.PERMITE_RETIRO]])
+        self.aprob_especial_label.setText(p.BOOL_TO_STR[course_info[c.APROB_ESPECIAL]])
+        self.creditos_label.setText(str(course_info[c.CREDITOS]))
+        self.descripcion_label.setText(course_info[c.DESCRIPCION])
 
 
 if __name__ == "__main__":
