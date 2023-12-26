@@ -238,7 +238,7 @@ class TopesFilterWidget(QGroupBox):
             checkbox.setChecked(default_checked)
             if not default_checked:
                 checkbox.setStyleSheet("color: red")
-            checkbox.stateChanged.connect(lambda state, attr=attr: senal_cambiar_topes.emit(attr))
+            checkbox.stateChanged.connect(lambda state, attr=attr: senal_cambiar_topes.emit(attr, state))
             checkbox_layout.addWidget(checkbox)
 
 class OFGInfoWidget(QWidget):

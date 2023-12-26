@@ -48,6 +48,7 @@ class ScheduleWindow(QMainWindow):
     senal_guardar_combinacion = pyqtSignal(str)
     senal_cargar_combinacion = pyqtSignal(str)
     senal_eliminar_combinacion = pyqtSignal(str)
+    senal_cambiar_topes = pyqtSignal(str, bool)
 
     def __init__(self):
         super().__init__()
@@ -75,7 +76,7 @@ class ScheduleWindow(QMainWindow):
         dock_widget_content = QWidget(self.dock_widget)
         dock_widget_layout = QVBoxLayout(dock_widget_content)
 
-        checkbox_group = TopesFilterWidget(dock_widget_content)
+        checkbox_group = TopesFilterWidget(self.senal_cambiar_topes, dock_widget_content)
         dock_widget_layout.addWidget(checkbox_group)
 
         file_list_title_layout = QHBoxLayout()

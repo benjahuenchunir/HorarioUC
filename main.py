@@ -36,6 +36,7 @@ class HorarioUC:
         self.schedule_window.senal_cargar_combinacion.connect(self.backend.load_combination)
         self.backend.senal_limpiar_lista_cursos.connect(self.schedule_window.list_courses.clear)
         self.schedule_window.senal_eliminar_combinacion.connect(self.backend.delete_combination)
+        self.schedule_window.senal_cambiar_topes.connect(self.backend.update_topes_filter)
     
     def conectar_senales_ofg(self):
         self.ofg_window.senal_cambiar_area.connect(self.backend.retrieve_ofg_area)

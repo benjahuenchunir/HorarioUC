@@ -14,6 +14,7 @@ from PyQt5.QtWidgets import QWidget, QApplication
 from PyQt5.QtCore import pyqtSignal
 from itertools import product
 import json
+from dataclasses import replace
 
 class Logic(QWidget):
     senal_enviar_cursos = pyqtSignal(list)
@@ -206,32 +207,20 @@ class Logic(QWidget):
         return list(valid_combinations)
     
     def are_courses_valid(self, combination: list[GroupedSection]) -> bool:
-        schedule_per_day = {}
-        for course in combination:  # Catedra con catedra
-            for key, value in course[c.HORARIO][c.SIGLA_CATEDRA].items():
-                if key not in schedule_per_day:
-                    schedule_per_day[key] = value.copy()
-                else:
-                    if any(val in schedule_per_day[key] for val in value):
-                        return False
-                    else:
-                        schedule_per_day[key].extend(value.copy())
-        if not self.check_course_conflicts(combination, c.SIGLA_TALLER):
-            return False
-        if not self.tope_lab and not self.check_course_conflicts(combination, c.SIGLA_LAB):
-            return False
-        if not self.tope_ayudantia and not self.check_course_conflicts(combination, c.SIGLA_AYUDANTIA):
-            return False
+        for attr in TopesFilter.__annotations__:
+            class_type1, class_type2 = attr.split('_')
+            if not getattr(self.topes_filter, attr) and not self.check_course_conflicts(combination, c.SHORT_FORM_TO_SIGLA[class_type1], c.SHORT_FORM_TO_SIGLA[class_type2]):
+                return False
         return True
 
-    def check_course_conflicts(self, combination: list[GroupedSection], class_type: str) -> bool:
+    def check_course_conflicts(self, combination: list[GroupedSection], class_type1: str, class_type2: str) -> bool:
         for i, course in enumerate(combination):
-            for key, modules in course[c.HORARIO][c.SIGLA_CATEDRA].items():
+            for key, modules in course[c.HORARIO][class_type1].items():
                 for j, other_course in enumerate(combination):
                     if (
                         i != j
-                        and key in other_course[c.HORARIO][class_type]
-                        and any(val in other_course[c.HORARIO][class_type][key] for val in modules)
+                        and key in other_course[c.HORARIO][class_type2]
+                        and any(val in other_course[c.HORARIO][class_type2][key] for val in modules)
                     ):
                         return False
         return True
@@ -354,8 +343,9 @@ class Logic(QWidget):
         os.remove(f'{c.PATH_SAVED_COMBINATIONS}{nombre_combinacion}')
         self.senal_actualizar_combinaciones_guardadas.emit()
         
-        
-        
+    def update_topes_filter(self, attr: str, value: bool):
+        self.topes_filter = replace(self.topes_filter, **{attr: value})
+        self.new_schedule()
 
 
 if __name__ == "__main__":

@@ -62,3 +62,10 @@ PATH_SAVED_COMBINATIONS = "saved_combinations/"
 
 CURSOS = "cursos"
 COMBINACION_ACTUAL = "combinacion_actual"
+
+SHORT_FORM_TO_SIGLA = {
+    "cat": SIGLA_CATEDRA,
+    "lab": SIGLA_LAB,
+    "ayu": SIGLA_AYUDANTIA,
+    "tal": SIGLA_TALLER,
+}
