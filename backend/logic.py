@@ -9,7 +9,7 @@ import global_constants as c
 from backend.scraper.scraper import Scraper
 from mappers import mapCourseToModel
 from icecream import ic
-from backend.models import Course, GroupedSection, Filter, OFG
+from backend.models import Course, GroupedSection, Filter, OFG, TopesFilter
 from PyQt5.QtWidgets import QWidget, QApplication
 from PyQt5.QtCore import pyqtSignal
 from itertools import product
@@ -43,6 +43,7 @@ class Logic(QWidget):
         self.secciones: dict[int, int] = {} # dict for storing the selected sections of each course
         self.combinaciones: list = []
         self.__current_course_index = 0
+        self.topes_filter = TopesFilter()
         self.tope_lab = False
         self.tope_ayudantia = False
         

@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import Qt
 import sys
-from backend.models import GroupedSection, Course
+from backend.models import GroupedSection, Course, TopesFilter
 import global_constants as c
 import frontend.constants as p
 from PyQt5.QtGui import QFont
@@ -215,19 +215,31 @@ class FilterComboBox(QComboBox):
         self.addItems(options)
         self.currentTextChanged.connect(lambda x: senal.emit())
 
-class TopesFilter(QGroupBox):
-    def __init__(self, parent = None) -> None:
-        super().__init__("Topes", parent)
-        checkbox_layout = QVBoxLayout(self)
-        checkbox1 = QCheckBox("Catedra + Catedra", self)
-        checkbox2 = QCheckBox("Catedra + Ayudantia", self)
-        checkbox3 = QCheckBox("Catedra + Lab", self)
-        checkbox4 = QCheckBox("Ayudantia + Ayudantia", self)
-        checkbox_layout.addWidget(checkbox1)
-        checkbox_layout.addWidget(checkbox2)
-        checkbox_layout.addWidget(checkbox3)
-        checkbox_layout.addWidget(checkbox4)
+from PyQt5.QtCore import Qt
 
+class TopesFilterWidget(QGroupBox):
+    def __init__(self, senal_cambiar_topes, parent=None) -> None:
+        super().__init__("Topes permitidos", parent)
+        checkbox_layout = QVBoxLayout(self)
+
+        default_values = TopesFilter()
+
+        short_to_full = {
+            'cat': 'Catedra',
+            'lab': 'Lab',
+            'tal': 'Taller',
+            'ayu': 'Ayudantia',
+        }
+        
+        for attr in TopesFilter.__annotations__:
+            full_form = ' + '.join(short_to_full.get(part, part) for part in attr.split('_'))
+            checkbox = QCheckBox(full_form, self)
+            default_checked = getattr(default_values, attr)
+            checkbox.setChecked(default_checked)
+            if not default_checked:
+                checkbox.setStyleSheet("color: red")
+            checkbox.stateChanged.connect(lambda state, attr=attr: senal_cambiar_topes.emit(attr))
+            checkbox_layout.addWidget(checkbox)
 
 class OFGInfoWidget(QWidget):
     def __init__(self, parent=None):

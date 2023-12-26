@@ -30,7 +30,7 @@ from frontend.widgets import (
     CourseInfoListElement,
     CourseInfoListHeader,
     FilterComboBox,
-    OFGInfoWidget
+    OFGInfoWidget,
 )
 from backend.models import GroupedSection, Filter
 
@@ -143,13 +143,16 @@ class OFGWindow(QMainWindow):
             self.dock_widget.show()
 
     def change_filters(self):
-        self.senal_filtrar.emit(Filter(
-            campus=self.campus_filter.currentText(),
-            formato=self.format_filter.currentText(),
-            creditos=self.credits_filter.currentText(),
-            en_ingles=self.english_filter.currentText(),
-            permite_retiro=self.withdrawal_filter.currentText(),
-        ), self.qcb_ofg_areas.currentText())
+        self.senal_filtrar.emit(
+            Filter(
+                campus=self.campus_filter.currentText(),
+                formato=self.format_filter.currentText(),
+                creditos=self.credits_filter.currentText(),
+                en_ingles=self.english_filter.currentText(),
+                permite_retiro=self.withdrawal_filter.currentText(),
+            ),
+            self.qcb_ofg_areas.currentText(),
+        )
 
     def iniciar(self):
         self.lbl_combinations.clear()

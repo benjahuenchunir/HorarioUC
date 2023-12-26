@@ -1,5 +1,6 @@
 import os
 import sys
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 from PyQt5.QtWidgets import (
     QWidget,
@@ -20,7 +21,7 @@ from PyQt5.QtWidgets import (
     QDockWidget,
     QToolBar,
     QInputDialog,
-    QSizePolicy
+    QSizePolicy,
 )
 from PyQt5.QtCore import pyqtSignal, QSize, Qt, QDir
 from PyQt5.QtGui import QColor, QIcon
@@ -29,12 +30,13 @@ from frontend.widgets import (
     CourseInfoListElement,
     DoubleLineWidget,
     CourseInfoListHeader,
-    TopesFilter
+    TopesFilterWidget,
 )
 from backend.models import GroupedSection
 import frontend.constants as c
 import global_constants as gc
 from backend.models import Course
+
 
 class ScheduleWindow(QMainWindow):
     senal_buscar_sigla = pyqtSignal(str)
@@ -46,36 +48,36 @@ class ScheduleWindow(QMainWindow):
     senal_guardar_combinacion = pyqtSignal(str)
     senal_cargar_combinacion = pyqtSignal(str)
     senal_eliminar_combinacion = pyqtSignal(str)
-    
+
     def __init__(self):
         super().__init__()
         self.setGeometry(0, 0, 1280, 720)
         # TODO toggle dark mode
         self.setStyleSheet(c.DARK_MODE)
-        
+
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
         layout = QVBoxLayout(central_widget)
-        
+
         menu_bar = QToolBar(self, movable=False)
         menu_bar.setIconSize(QSize(32, 32))
         self.addToolBar(menu_bar)
         menu_icon = QAction(QIcon(c.PATH_MENU_ICON), "Menu", self)
         menu_bar.addAction(menu_icon)
-        
+
         self.dock_widget = QDockWidget("", self)
         self.dock_widget.setAllowedAreas(Qt.LeftDockWidgetArea)
         self.dock_widget.setFeatures(QDockWidget.NoDockWidgetFeatures)
         self.addDockWidget(Qt.LeftDockWidgetArea, self.dock_widget)
         self.dock_widget.hide()
         menu_icon.triggered.connect(self.toggle_side_menu)
-        
+
         dock_widget_content = QWidget(self.dock_widget)
         dock_widget_layout = QVBoxLayout(dock_widget_content)
-        
-        checkbox_group = TopesFilter(dock_widget_content)
+
+        checkbox_group = TopesFilterWidget(dock_widget_content)
         dock_widget_layout.addWidget(checkbox_group)
-        
+
         file_list_title_layout = QHBoxLayout()
         file_list_title = QLabel("Guardados", dock_widget_content)
         file_list_title.setStyleSheet("background-color: #2b2b2b; font-weight: bold;")
@@ -101,7 +103,9 @@ class ScheduleWindow(QMainWindow):
         layout.addLayout(layout_add)
 
         self.list_courses = QListWidget(self)
-        self.list_courses.setSelectionMode(QAbstractItemView.NoSelection) # This is to avoid the blue selection
+        self.list_courses.setSelectionMode(
+            QAbstractItemView.NoSelection
+        )  # This is to avoid the blue selection
         self.lbl_combinations = QLabel("0", self)
         self.lbl_combinations.setStyleSheet("background-color: #2b2b2b;")
         layout.addWidget(self.list_courses)
@@ -129,7 +133,9 @@ class ScheduleWindow(QMainWindow):
         self.tb_schedule.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.set_lunch_line(4)
         self.list_current_courses = QListWidget(self)
-        self.list_current_courses.setSelectionMode(QAbstractItemView.NoSelection) # This is to avoid the blue selection   
+        self.list_current_courses.setSelectionMode(
+            QAbstractItemView.NoSelection
+        )  # This is to avoid the blue selection
         layout_courses.addWidget(self.tb_schedule)
         layout_courses.addWidget(self.list_current_courses)
         layout.addLayout(layout_courses)
@@ -138,17 +144,19 @@ class ScheduleWindow(QMainWindow):
 
         self.btn_add.clicked.connect(self.buscar_sigla)
         btn_ofgs.clicked.connect(self.enviar_buscar_ofgs)
-        
+
         self.update_saved_combinations()
-    
+
     def toggle_side_menu(self):
         if self.dock_widget.isVisible():
             self.dock_widget.hide()
         else:
             self.dock_widget.show()
-    
+
     def prompt_save_name(self):
-        name, ok = QInputDialog.getText(self, 'Guardar combinacion', 'Ingresa un nombre:')
+        name, ok = QInputDialog.getText(
+            self, "Guardar combinacion", "Ingresa un nombre:"
+        )
         if ok:
             self.senal_guardar_combinacion.emit(name)
 
@@ -163,7 +171,9 @@ class ScheduleWindow(QMainWindow):
             delete_button = QPushButton(QIcon(c.PATH_DELETE_ICON), "")
             delete_button.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
             delete_button.setMaximumWidth(30)
-            delete_button.clicked.connect(lambda checked, file=file: self.senal_eliminar_combinacion.emit(file))
+            delete_button.clicked.connect(
+                lambda checked, file=file: self.senal_eliminar_combinacion.emit(file)
+            )
             layout.addWidget(delete_button, 0)
             label = QLabel(file.split(".")[0])
             label.setStyleSheet("background-color: #2b2b2b;")
@@ -171,14 +181,16 @@ class ScheduleWindow(QMainWindow):
             load_button = QPushButton(QIcon(c.PATH_LOAD_ICON), "")
             load_button.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
             load_button.setMaximumWidth(60)
-            load_button.clicked.connect(lambda checked, file=file: self.senal_cargar_combinacion.emit(file))
+            load_button.clicked.connect(
+                lambda checked, file=file: self.senal_cargar_combinacion.emit(file)
+            )
             layout.addWidget(label, 1)
             layout.addWidget(load_button, 0)
             widget.setLayout(layout)
             item.setSizeHint(widget.sizeHint())
             self.file_list.addItem(item)
             self.file_list.setItemWidget(item, widget)
-    
+
     def add_suggestions(self, courses: list[Course]):
         self.txt_sigla.clear()
         self.txt_sigla.addItems([course[gc.SIGLA] for course in courses])
@@ -191,7 +203,12 @@ class ScheduleWindow(QMainWindow):
             self.tb_schedule.item(rowIndex, j).setBackground(color)
 
     def add_course_schedule(self, course):
-        for sigla_type in [c.SIGLA_CATEDRA, c.SIGLA_AYUDANTIA, c.SIGLA_LAB, c.SIGLA_TALLER]:
+        for sigla_type in [
+            c.SIGLA_CATEDRA,
+            c.SIGLA_AYUDANTIA,
+            c.SIGLA_LAB,
+            c.SIGLA_TALLER,
+        ]:
             self.add_item(
                 course[gc.SIGLA],
                 course[gc.SECCIONES],
@@ -237,7 +254,12 @@ class ScheduleWindow(QMainWindow):
                 widget,
             )
 
-    def new_schedule(self, combination: list[GroupedSection], cantidad_combinaciones, combinacion_actual):
+    def new_schedule(
+        self,
+        combination: list[GroupedSection],
+        cantidad_combinaciones,
+        combinacion_actual,
+    ):
         self.update_combinations_label(cantidad_combinaciones)
         self.update_current_index_label(combinacion_actual)
         self.update_schedule(combination)
@@ -246,7 +268,7 @@ class ScheduleWindow(QMainWindow):
 
     def update_current_index_label(self, combinacion_actual):
         self.lbl_current_index.setText(f"Combinacion {combinacion_actual}")
-    
+
     def update_combinations_label(self, cantidad_combinaciones):
         self.lbl_combinations.setText(f"{cantidad_combinaciones} combinaciones")
 
@@ -258,11 +280,11 @@ class ScheduleWindow(QMainWindow):
         item = QListWidgetItem()
         item.setFlags(Qt.NoItemFlags)
         widget = CourseListElement(
-                course,
-                course[gc.SECCIONES],
-                self.senal_borrar_curso,
-                self.senal_cambiar_seccion,
-            )
+            course,
+            course[gc.SECCIONES],
+            self.senal_borrar_curso,
+            self.senal_cambiar_seccion,
+        )
         item.setSizeHint(widget.sizeHint())
         self.list_courses.addItem(item)
         self.list_courses.setItemWidget(
@@ -281,7 +303,7 @@ class ScheduleWindow(QMainWindow):
 
     def enviar_buscar_ofgs(self):
         self.senal_buscar_ofgs.emit()
-    
+
     def update_course_section(self, course_id, section):
         for i in range(self.list_courses.count()):
             item = self.list_courses.item(i)
