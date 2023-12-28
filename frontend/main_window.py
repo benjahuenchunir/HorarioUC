@@ -93,6 +93,14 @@ class ScheduleWindow(QMainWindow):
 
         self.dock_widget.setWidget(dock_widget_content)
 
+        layout_semester = QHBoxLayout()
+        layout.addLayout(layout_semester)
+        self.dropdown_year = QComboBox(self)
+        self.dropdown_year.addItems(gc.YEARS)
+        layout_semester.addWidget(self.dropdown_year)
+        self.dropdown_period = QComboBox(self)
+        self.dropdown_period.addItems(gc.PERIODS)
+        layout_semester.addWidget(self.dropdown_period)
         layout_add = QHBoxLayout()
         self.txt_sigla = QComboBox(self)
         self.txt_sigla.setEditable(True)
@@ -147,6 +155,15 @@ class ScheduleWindow(QMainWindow):
         btn_ofgs.clicked.connect(self.enviar_buscar_ofgs)
 
         self.update_saved_combinations()
+    
+    def update_semester_filter(self, year, period):
+        self.dropdown_year.blockSignals(True)
+        self.dropdown_year.setCurrentText(year)
+        self.dropdown_year.blockSignals(False)
+
+        self.dropdown_period.blockSignals(True)
+        self.dropdown_period.setCurrentText(period)
+        self.dropdown_period.blockSignals(False)
 
     def toggle_side_menu(self):
         if self.dock_widget.isVisible():
@@ -166,6 +183,8 @@ class ScheduleWindow(QMainWindow):
         files = directory.entryList(QDir.Files)
         self.file_list.clear()
         for file in files:
+            if not file.endswith(".json"):
+                continue
             item = QListWidgetItem(self.file_list)
             widget = QWidget()
             layout = QHBoxLayout(widget)

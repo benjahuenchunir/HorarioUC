@@ -12,6 +12,7 @@ class HorarioUC:
         self.ofg_window = OFGWindow()
         self.conectar_senales_schedule()
         self.conectar_senales_ofg()
+        self.backend.load_year_and_period()
         self.backend.retrieve_all_courses()
         self.schedule_window.showMaximized()
     
@@ -37,6 +38,9 @@ class HorarioUC:
         self.backend.senal_limpiar_lista_cursos.connect(self.schedule_window.list_courses.clear)
         self.schedule_window.senal_eliminar_combinacion.connect(self.backend.delete_combination)
         self.schedule_window.senal_cambiar_topes.connect(self.backend.update_topes_filter)
+        self.schedule_window.dropdown_year.currentTextChanged.connect(self.backend.update_year_filter)
+        self.schedule_window.dropdown_period.currentTextChanged.connect(self.backend.update_period_filter)
+        self.backend.senal_send_semester.connect(self.schedule_window.update_semester_filter)
     
     def conectar_senales_ofg(self):
         self.ofg_window.senal_cambiar_area.connect(self.backend.retrieve_ofg_area)

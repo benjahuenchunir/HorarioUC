@@ -63,7 +63,7 @@ OPCIONES_CREDITOS = [CUALQUIERA, "5", "10"]
 OPCIONES_EN_INGLES = [CUALQUIERA, "SI", "NO"]
 OPCIONES_PERMITE_RETIRO = [CUALQUIERA, "SI", "NO"]
 
-STRING_TO_BOOL = {"SI": 1, "NO": 0}
+STRING_TO_BOOL = {"SI": 1, "NO": 0, "Si": 1, "No": 0}
 PATH_SAVED_COMBINATIONS = "saved_combinations/"
 
 CURSOS = "cursos"
@@ -75,3 +75,7 @@ SHORT_FORM_TO_SIGLA = {
     "ayu": SIGLA_AYUDANTIA,
     "tal": SIGLA_TALLER,
 }
+
+YEARS = ["2022", "2023", "2024"]
+PERIODS = ["1", "2", "TAV"]
+PATH_YEAR_AND_PERIOD = "settings/year_and_period.txt"

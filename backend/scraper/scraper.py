@@ -12,8 +12,8 @@ class Scraper:
     def __init__(self):
         super().__init__()
 
-    def find_course_info(self, course_id) -> tuple[CourseDTO, list[SectionDTO]] | None:
-        url = f"https://buscacursos.uc.cl/?cxml_semestre=2023-2&cxml_sigla={course_id}&cxml_nrc=&cxml_nombre=&cxml_categoria=TODOS&cxml_area_fg=TODOS&cxml_formato_cur=TODOS&cxml_profesor=&cxml_campus=TODOS&cxml_unidad_academica=TODOS&cxml_horario_tipo_busqueda=si_tenga&cxml_horario_tipo_busqueda_actividad=TODOS#resultados"
+    def find_course_info(self, course_id, year, period) -> tuple[CourseDTO, list[SectionDTO]] | None:
+        url = f"https://buscacursos.uc.cl/?cxml_semestre={year}-{period}&cxml_sigla={course_id}&cxml_nrc=&cxml_nombre=&cxml_categoria=TODOS&cxml_area_fg=TODOS&cxml_formato_cur=TODOS&cxml_profesor=&cxml_campus=TODOS&cxml_unidad_academica=TODOS&cxml_horario_tipo_busqueda=si_tenga&cxml_horario_tipo_busqueda_actividad=TODOS#resultados"
         courses_dict = self.parse_url(url)
         return courses_dict.get(course_id, None)
 
@@ -30,7 +30,9 @@ class Scraper:
                 "border": "0",
             },
         )
-        # TODO creo que esto falla si no hay cursos
+
+        if table is None:
+            return courses
         rows = table.find_all("tr", class_=["resultadosRowImpar", "resultadosRowPar"])
 
         for row in rows:

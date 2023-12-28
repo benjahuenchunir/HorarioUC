@@ -34,12 +34,15 @@ class Logic(QWidget):
     senal_change_next_btn_state_ofg = pyqtSignal(bool)
     senal_change_prev_btn_state_ofg = pyqtSignal(bool)
     senal_update_index_ofg = pyqtSignal(int)
+    senal_send_semester = pyqtSignal(str, str)
 
     def __init__(self) -> None:
         super().__init__()
         self.db = Database()
         self.scraper = Scraper()
         self.cursos: dict[int, Course] = {}
+        self.year = c.YEARS[-1]
+        self.period = c.PERIODS[0]
         
         self.secciones: dict[int, int] = {} # dict for storing the selected sections of each course
         self.combinaciones: list = []
@@ -53,6 +56,43 @@ class Logic(QWidget):
         self.filter: Filter = Filter()
         self.current_ofg_combination_index = 0
     
+    def load_year_and_period(self):
+        try:
+            with open(c.PATH_YEAR_AND_PERIOD, 'r') as f:
+                data = json.load(f)
+            self.year = data['year']
+            self.period = data['period']
+        except FileNotFoundError:
+            self.db.clear()
+            self.store_year_and_period()
+        self.senal_send_semester.emit(self.year, self.period)
+    
+    def update_year_filter(self, year):
+        self.year = year
+        self.store_year_and_period()
+        self.clear_everything()
+        for course in list(self.cursos.values()):
+            self.delete_course(course[c.ID], False)
+            self.retrieve_course(course[c.SIGLA], False)
+        self.new_schedule()
+    
+    def clear_everything(self):
+        self.senal_limpiar_lista_cursos.emit()
+        self.db.clear()
+    
+    def update_period_filter(self, period):
+        self.period = period
+        self.store_year_and_period()
+        self.clear_everything()
+        for course in list(self.cursos.values()):
+            self.delete_course(course[c.ID], False)
+            self.retrieve_course(course[c.SIGLA], False)
+        self.new_schedule()
+    
+    def store_year_and_period(self):
+        with open(c.PATH_YEAR_AND_PERIOD, 'w') as f:
+            json.dump({'year': self.year, 'period': self.period}, f)
+        
     @property
     def current_course_index(self):
         return self.__current_course_index
@@ -81,7 +121,11 @@ class Logic(QWidget):
         print(f"Buscando curso en la base de datos: {sigla_curso} ...")
         resultado = self.db.recuperar_curso(sigla_curso)
         if resultado is None:
-            resultado, secciones = self.scrape_course(sigla_curso)
+            result = self.scrape_course(sigla_curso)
+            if result is None:
+                print("No se encontró el curso en la página web")
+                return # TODO display error
+            resultado, secciones = result
             if resultado is None:
                 return
         else:
@@ -94,7 +138,7 @@ class Logic(QWidget):
 
     def scrape_course(self, sigla_curso):
         print(f"No existe el curso en la base de datos, se procederá a buscarlo en la página web")
-        course = self.scraper.find_course_info(sigla_curso)
+        course = self.scraper.find_course_info(sigla_curso, self.year, self.period)
         if course is None:
             # TODO display error
             return
@@ -169,7 +213,7 @@ class Logic(QWidget):
             self.current_combination.append(curso)
     
     def scrape_ofg_area(self, area):
-        url = f"https://buscacursos.uc.cl/?cxml_semestre=2023-2&cxml_sigla=&cxml_nrc=&cxml_nombre=&cxml_categoria=TODOS&cxml_area_fg={c.OFG[area]}&cxml_formato_cur=TODOS&cxml_profesor=&cxml_campus=TODOS&cxml_unidad_academica=TODOS&cxml_horario_tipo_busqueda=si_tenga&cxml_horario_tipo_busqueda_actividad=TODOS#resultados"
+        url = f"https://buscacursos.uc.cl/?cxml_semestre={self.year}-{self.period}&cxml_sigla=&cxml_nrc=&cxml_nombre=&cxml_categoria=TODOS&cxml_area_fg={c.OFG[area]}&cxml_formato_cur=TODOS&cxml_profesor=&cxml_campus=TODOS&cxml_unidad_academica=TODOS&cxml_horario_tipo_busqueda=si_tenga&cxml_horario_tipo_busqueda_actividad=TODOS#resultados"
         courses = self.scraper.parse_url(url)
         if not courses:
             ... # TODO display error
@@ -240,11 +284,12 @@ class Logic(QWidget):
         if len(self.cursos[course_id][c.SECCIONES]) != 1:
             self.new_schedule()
     
-    def delete_course(self, course_id):
+    def delete_course(self, course_id, calcular_combinaciones=True):
         del self.cursos[course_id]
         if course_id in self.secciones:
             del self.secciones[course_id]
-        self.new_schedule()
+        if calcular_combinaciones:
+            self.new_schedule()
 
     def increase_index(self):
         self.current_course_index += 1

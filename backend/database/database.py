@@ -182,6 +182,13 @@ class Database:
                 )
         return inserted_ids
 
+    @conexion
+    def clear(self):
+        print("Se borraron todas las tablas.")
+        sql = "DELETE FROM cursos"
+        self.cursor.execute(sql)
+        self.conector.commit()
+
     def crear_tablas(self):
         self.crear_tabla(c.TABLA_CURSOS, c.COLUMNAS_CURSOS)
         self.crear_tabla(c.TABLA_SECCIONES, c.COLUMNAS_SECCIONES)
