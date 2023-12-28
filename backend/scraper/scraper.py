@@ -8,7 +8,6 @@ from backend.database.tables import CourseDTO, SectionDTO
 import global_constants as c
 import json
 
-
 class Scraper:
     def __init__(self):
         super().__init__()
@@ -44,11 +43,12 @@ class Scraper:
             name = cells[9].text.strip()
             teacher = cells[10].text.strip()
             campus = cells[11].text.strip()
-            schedules = cells[16].table.find_all("tr")   
+            schedules = cells[16].table.find_all("tr")  
             catedra = defaultdict(list)
             ayudantia = defaultdict(list)
             lab = defaultdict(list)
             taller = defaultdict(list)
+            practica = defaultdict(list)
             for schedule in schedules:
                 schedule_cells = schedule.find_all("td")
                 tipo = schedule_cells[1].text.strip()
@@ -66,7 +66,10 @@ class Scraper:
                         ayudantia[dia].extend(modulos)
                     elif tipo == c.SIGLA_TALLER:
                         taller[dia].extend(modulos)
+                    elif tipo == c.SIGLA_PRACTICA:
+                        practica[dia].extend(modulos)
                     else:
+                        # TODO raise error
                         print(sigla)
                         print(tipo)
             if sigla not in courses:
@@ -100,7 +103,8 @@ class Scraper:
                         c.SIGLA_CATEDRA: catedra,
                         c.SIGLA_LAB: lab,
                         c.SIGLA_AYUDANTIA: ayudantia,
-                        c.SIGLA_TALLER: taller
+                        c.SIGLA_TALLER: taller,
+                        c.SIGLA_PRACTICA: practica,
                     }),
                     formato=formato,
                 )

@@ -1,6 +1,6 @@
-from global_constants import SIGLA_CATEDRA, SIGLA_LAB, SIGLA_AYUDANTIA, SIGLA_TALLER
+from global_constants import SIGLA_CATEDRA, SIGLA_LAB, SIGLA_AYUDANTIA, SIGLA_TALLER, SIGLA_PRACTICA
 
-DIAS = {"L": 0, "M": 1, "W": 2, "J": 3, "V": 4}
+DIAS = {"L": 0, "M": 1, "W": 2, "J": 3, "V": 4, "S": 5}
 H_LABELS_HORARIO = [
     "8:20",
     "9:40",
@@ -17,6 +17,7 @@ COLORES = {
     SIGLA_LAB: "#B3D4F5",
     SIGLA_AYUDANTIA: "#99CC99",
     SIGLA_TALLER: "#C7C2F8",
+    SIGLA_PRACTICA: "#CCCC99",
 }
 
 TODOS = "TODOS"

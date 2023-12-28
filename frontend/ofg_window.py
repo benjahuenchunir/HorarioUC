@@ -114,7 +114,7 @@ class OFGWindow(QMainWindow):
         layout.addLayout(layout_btn)
         layout_courses = QHBoxLayout()
         self.tb_schedule = QTableWidget(self)
-        self.tb_schedule.setColumnCount(5)
+        self.tb_schedule.setColumnCount(6)
         self.tb_schedule.setRowCount(9)
         self.tb_schedule.setRowHeight(4, 1)
         self.tb_schedule.setVerticalHeaderLabels(p.H_LABELS_HORARIO)
@@ -177,6 +177,7 @@ class OFGWindow(QMainWindow):
             gc.SIGLA_AYUDANTIA,
             gc.SIGLA_LAB,
             gc.SIGLA_TALLER,
+            gc.SIGLA_PRACTICA,
         ]:
             self.add_item(
                 course[gc.SIGLA],
