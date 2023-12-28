@@ -27,6 +27,7 @@ class Logic(QWidget):
     senal_cambiar_seccion = pyqtSignal(int, int)
     senal_actualizar_combinaciones_guardadas = pyqtSignal()
     senal_limpiar_lista_cursos = pyqtSignal()
+    senal_mostrar_alerta = pyqtSignal(str)
     
     senal_new_schedule_ofg = pyqtSignal(tuple, int, int)
     senal_update_schedule_ofg = pyqtSignal(tuple)
@@ -124,7 +125,8 @@ class Logic(QWidget):
             result = self.scrape_course(sigla_curso)
             if result is None:
                 print("No se encontró el curso en la página web")
-                return # TODO display error
+                self.senal_mostrar_alerta.emit(f"No se encontró el curso {sigla_curso.upper()} en la página web")
+                return
             resultado, secciones = result
             if resultado is None:
                 return
@@ -140,7 +142,6 @@ class Logic(QWidget):
         print(f"No existe el curso en la base de datos, se procederá a buscarlo en la página web")
         course = self.scraper.find_course_info(sigla_curso, self.year, self.period)
         if course is None:
-            # TODO display error
             return
         self.insert_course(course)
         self.retrieve_all_courses()

@@ -22,6 +22,7 @@ from PyQt5.QtWidgets import (
     QToolBar,
     QInputDialog,
     QSizePolicy,
+    QMessageBox
 )
 from PyQt5.QtCore import pyqtSignal, QSize, Qt, QDir
 from PyQt5.QtGui import QColor, QIcon
@@ -326,6 +327,11 @@ class ScheduleWindow(QMainWindow):
             if widget.id_curso == course_id:
                 widget.update_section(section)
                 break
+    
+    def show_alert(self, message):
+        alert = QMessageBox(self)
+        alert.setText(message)
+        alert.exec()
 
 
 if __name__ == "__main__":

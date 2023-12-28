@@ -41,7 +41,8 @@ class HorarioUC:
         self.schedule_window.dropdown_year.currentTextChanged.connect(self.backend.update_year_filter)
         self.schedule_window.dropdown_period.currentTextChanged.connect(self.backend.update_period_filter)
         self.backend.senal_send_semester.connect(self.schedule_window.update_semester_filter)
-    
+        self.backend.senal_mostrar_alerta.connect(self.schedule_window.show_alert)
+        
     def conectar_senales_ofg(self):
         self.ofg_window.senal_cambiar_area.connect(self.backend.retrieve_ofg_area)
         self.ofg_window.back_action.triggered.connect(self.change_to_schedule)
