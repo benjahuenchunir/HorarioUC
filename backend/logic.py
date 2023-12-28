@@ -143,7 +143,7 @@ class Logic(QWidget):
         course = self.scraper.find_course_info(sigla_curso, self.year, self.period)
         if course is None:
             return
-        self.insert_course(course)
+        self.db.insert_course(course)
         self.retrieve_all_courses()
         return course
 
@@ -219,18 +219,9 @@ class Logic(QWidget):
         if not courses:
             ... # TODO display error
         for course_tuple in courses.values():
-            self.insert_course(course_tuple)
+            self.db.insert_course(course_tuple)
         self.retrieve_all_courses()
         return courses
-    
-    def insert_course(self, tupla_curso: tuple[CourseDTO, list[SectionDTO]]):
-        # TODO transaction
-        course, sections = tupla_curso
-        course_id = self.db.insertar_registro(TABLA_CURSOS, [course])[-1]
-        course[c.ID] = course_id
-        for section in sections:
-            section[c.ID_CURSO] = course_id
-        self.db.insertar_registro(TABLA_SECCIONES, sections)
 
     def generate_course_combinations(self, cursos: Iterable[Course]):
         """

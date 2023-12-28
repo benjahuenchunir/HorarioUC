@@ -142,9 +142,23 @@ class Database:
             print("Ocurrió un error. Revisa la instrucción SQL.")
             print(e)
             return []
+    
+    @conexion
+    def insert_course(self, tupla_curso: tuple[CourseDTO, list[SectionDTO]]):
+        course, sections = tupla_curso
+        try:
+            self.conector.start_transaction()
+            course_id = self.insertar_registro(c.TABLA_CURSOS, [course])[-1]
+            course[gc.ID] = course_id
+            for section in sections:
+                section[gc.ID_CURSO] = course_id
+            self.insertar_registro(c.TABLA_SECCIONES, sections)
+            self.conector.commit()
+        except Exception as e:
+            print(f"Ocurrió un error al intentar insertar el curso y las secciones:\n {e}")
+            self.conector.rollback()
 
     # Método para insertar registros en una tabla
-    @conexion
     def insertar_registro(self, nombre_tabla, registros) -> list[int]:
 
         if not registros:  # Si la lista está vacía
