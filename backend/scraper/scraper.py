@@ -43,12 +43,8 @@ class Scraper:
             name = cells[9].text.strip()
             teacher = cells[10].text.strip()
             campus = cells[11].text.strip()
-            schedules = cells[16].table.find_all("tr")  
-            catedra = defaultdict(list)
-            ayudantia = defaultdict(list)
-            lab = defaultdict(list)
-            taller = defaultdict(list)
-            practica = defaultdict(list)
+            schedules = cells[16].table.find_all("tr")
+            schedule_data = {tipo: defaultdict(list) for tipo in c.TIPOS_CLASES}
             for schedule in schedules:
                 schedule_cells = schedule.find_all("td")
                 tipo = schedule_cells[1].text.strip()
@@ -58,16 +54,8 @@ class Scraper:
                     continue
                 for dia in dias.split("-"):
                     modulos = map(int, modulos_.split(","))
-                    if tipo == c.SIGLA_CATEDRA:
-                        catedra[dia].extend(modulos)
-                    elif tipo == c.SIGLA_LAB:
-                        lab[dia].extend(modulos)
-                    elif tipo == c.SIGLA_AYUDANTIA:
-                        ayudantia[dia].extend(modulos)
-                    elif tipo == c.SIGLA_TALLER:
-                        taller[dia].extend(modulos)
-                    elif tipo == c.SIGLA_PRACTICA:
-                        practica[dia].extend(modulos)
+                    if tipo in c.TIPOS_CLASES:
+                        schedule_data[tipo][dia].extend(modulos)
                     else:
                         # TODO raise error
                         print(sigla)
@@ -99,13 +87,7 @@ class Scraper:
                     profesor=teacher,
                     campus=campus,
                     en_ingles=en_ingles,
-                    horario=json.dumps({
-                        c.SIGLA_CATEDRA: catedra,
-                        c.SIGLA_LAB: lab,
-                        c.SIGLA_AYUDANTIA: ayudantia,
-                        c.SIGLA_TALLER: taller,
-                        c.SIGLA_PRACTICA: practica,
-                    }),
+                    horario=json.dumps(schedule_data),
                     formato=formato,
                 )
             )

@@ -115,7 +115,7 @@ class OFGWindow(QMainWindow):
         layout_courses = QHBoxLayout()
         self.tb_schedule = QTableWidget(self)
         self.tb_schedule.setColumnCount(6)
-        self.tb_schedule.setRowCount(9)
+        self.tb_schedule.setRowCount(10)
         self.tb_schedule.setRowHeight(4, 1)
         self.tb_schedule.setVerticalHeaderLabels(p.H_LABELS_HORARIO)
         self.tb_schedule.setHorizontalHeaderLabels(p.DIAS.keys())
@@ -172,13 +172,7 @@ class OFGWindow(QMainWindow):
             self.tb_schedule.item(4, j).setBackground(color)
 
     def add_course_schedule(self, course):
-        for sigla_type in [
-            gc.SIGLA_CATEDRA,
-            gc.SIGLA_AYUDANTIA,
-            gc.SIGLA_LAB,
-            gc.SIGLA_TALLER,
-            gc.SIGLA_PRACTICA,
-        ]:
+        for sigla_type in gc.TIPOS_CLASES:
             self.add_item(
                 course[gc.SIGLA],
                 course[gc.SECCIONES],
