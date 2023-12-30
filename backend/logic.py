@@ -384,6 +384,8 @@ class Logic(QWidget):
         self.topes_filter = replace(self.topes_filter, **{attr: value})
         self.new_schedule()
 
+    def download_course_info(self, sigla: str):
+        self.scraper.download_course_program_and_requirements(sigla)
 
 if __name__ == "__main__":
 

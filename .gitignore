@@ -33,3 +33,6 @@ __pycache__/
 
 *.idea
 *.DS_STORE
+/requisitos/*.txt
+/programas/*.txt
+/saved_combinations/*.json

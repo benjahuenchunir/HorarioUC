@@ -39,6 +39,7 @@ class OFGWindow(QMainWindow):
     senal_cambiar_area = pyqtSignal(str)
     senal_cambiar_filtro = pyqtSignal()
     senal_filtrar = pyqtSignal(Filter, str)
+    senal_download_course_info = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -122,7 +123,7 @@ class OFGWindow(QMainWindow):
         self.tb_schedule.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.set_lunch_line()
         right_layout = QVBoxLayout()
-        self.ofg_info_widget = OFGInfoWidget(self)
+        self.ofg_info_widget = OFGInfoWidget(self.senal_download_course_info, self)
         right_layout.addWidget(self.ofg_info_widget)
         self.list_current_courses = QListWidget(self)
         self.list_current_courses.setSelectionMode(QAbstractItemView.NoSelection)
