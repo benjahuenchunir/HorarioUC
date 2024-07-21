@@ -42,6 +42,7 @@ class HorarioUC:
         self.schedule_window.dropdown_period.currentTextChanged.connect(self.backend.update_period_filter)
         self.backend.senal_send_semester.connect(self.schedule_window.update_semester_filter)
         self.backend.senal_mostrar_alerta.connect(self.schedule_window.show_alert)
+        self.schedule_window.senal_download_info.connect(self.backend.download_course_info)
         
     def conectar_senales_ofg(self):
         self.ofg_window.senal_cambiar_area.connect(self.backend.retrieve_ofg_area)
@@ -58,6 +59,7 @@ class HorarioUC:
         self.ofg_window.senal_cambiar_filtro.connect(self.ofg_window.change_filters)
         self.ofg_window.senal_filtrar.connect(self.backend.update_ofg_filter)
         self.backend.senal_update_ofg_info.connect(self.ofg_window.ofg_info_widget.set_course_info)
+        self.ofg_window.senal_download_course_info.connect(self.backend.download_course_info)
 
     def change_to_ofgs(self):
         self.schedule_window.hide()

@@ -50,6 +50,7 @@ class ScheduleWindow(QMainWindow):
     senal_cargar_combinacion = pyqtSignal(str)
     senal_eliminar_combinacion = pyqtSignal(str)
     senal_cambiar_topes = pyqtSignal(str, bool)
+    senal_download_info = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -300,6 +301,7 @@ class ScheduleWindow(QMainWindow):
             course[gc.SECCIONES],
             self.senal_borrar_curso,
             self.senal_cambiar_seccion,
+            self.senal_download_info
         )
         item.setSizeHint(widget.sizeHint())
         self.list_courses.addItem(item)

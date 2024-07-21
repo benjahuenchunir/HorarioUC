@@ -7,6 +7,7 @@ from collections import defaultdict
 from backend.database.tables import CourseDTO, SectionDTO
 import global_constants as c
 import json
+from icecream import ic
 
 class Scraper:
     def __init__(self):
@@ -94,7 +95,39 @@ class Scraper:
                 )
             )
         return courses
+    
+    def download_course_program_and_requirements(self, sigla):
+        requisitos_response = requests.get(f"https://catalogo.uc.cl/index.php?tmpl=component&option=com_catalogo&view=requisitos&sigla={sigla}")
+        programa_response = requests.get(f"https://catalogo.uc.cl/index.php?tmpl=component&option=com_catalogo&view=programa&sigla={sigla}")
 
+        # Parse requisitos
+        soup = BeautifulSoup(requisitos_response.text, 'html.parser')
+        table = soup.find('table', attrs={'class':'tablesorter tablesorter-blue'})
+        rows = table.find_all('tr')
+
+        data = {}
+        for row in rows:
+            cols = row.find_all('td')
+            cols = [ele.text.strip() for ele in cols]
+            data[cols[0]] = cols[1]
+
+        with open(f"{c.PATH_REQUISITOS}/{sigla}.txt", "w", encoding='utf-8') as f:
+            for key, value in data.items():
+                f.write(f"{key}: {value}\n")
+
+        # Parse programa
+        soup = BeautifulSoup(programa_response.text, 'html.parser')
+        pre_text = soup.find('pre').get_text()
+
+        # Split the text by double newlines to separate the sections
+        sections = pre_text.split('\n\n')
+
+        info = sections[0]
+        description = "\n".join(sections[1:])
+
+        with open(f"{c.PATH_PROGRAMAS}/{sigla}.txt", "w", encoding='utf-8') as f:
+            f.write(f"{info}\n\n {description}")
+        
 if __name__ == "__main__":
     l = Scraper()
     print(l.find_course_info("MAT1630"))

@@ -162,7 +162,7 @@ class CourseInfoListElement(QWidget):
         self.tooltip.hide()
 
 class CourseListElement(QWidget):
-    def __init__(self, curso: Course, secciones_agrupadas: list[GroupedSection], senal_borrar_curso, senal_cambiar_seccion):
+    def __init__(self, curso: Course, secciones_agrupadas: list[GroupedSection], senal_borrar_curso, senal_cambiar_seccion, senal_download_course_info):
         super().__init__()
         self.id_curso = curso[c.ID]
         hbox = QHBoxLayout()
@@ -177,8 +177,13 @@ class CourseListElement(QWidget):
         hbox.addWidget(self.lbl_secciones)
         self.qcb_section_selection = QComboBox(self)
         hbox.addWidget(self.qcb_section_selection)
+        vbox = QVBoxLayout()
         self.btn_delete = QPushButton("Borrar", self)
-        hbox.addWidget(self.btn_delete)
+        vbox.addWidget(self.btn_delete)
+        self.btn_download_info = QPushButton("Descargar Info", self)
+        self.btn_download_info.clicked.connect(lambda: senal_download_course_info.emit(curso[c.SIGLA]))
+        vbox.addWidget(self.btn_download_info)
+        hbox.addLayout(vbox)
         self.qcb_section_selection.addItem("Todas")
         for seccion, profesor in sorted(secciones, key=lambda x: x[0]):
             self.qcb_section_selection.addItem(f"{seccion} - {profesor}")
@@ -242,18 +247,22 @@ class TopesFilterWidget(QGroupBox):
             checkbox_layout.addWidget(checkbox)
 
 class OFGInfoWidget(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, senal_download_course_info, parent=None):
         super().__init__(parent)
 
         self.layout = QFormLayout(self)
 
         self.sigla_label = BackgroundQLabel('<h1>-</h1>')
         self.name_label = BackgroundQLabel('<h1>-</h1>')
+        self.name_label.setWordWrap(True)
         self.creditos_label = BackgroundQLabel()
         self.permite_retiro_label = BackgroundQLabel()
         self.aprob_especial_label = BackgroundQLabel()
         self.descripcion_label = BackgroundQLabel()
         self.descripcion_label.setWordWrap(True)
+        self.btn_download_info = QPushButton("Descargar programa y requisitos", self)
+        self.btn_download_info.hide()
+        self.btn_download_info.clicked.connect(lambda: senal_download_course_info.emit(self.sigla_label.text()[4:-5]))
 
         self.layout.addRow(self.sigla_label)
         self.layout.addRow(self.name_label)
@@ -261,8 +270,10 @@ class OFGInfoWidget(QWidget):
         self.layout.addRow("Permite Retiro:", self.permite_retiro_label)
         self.layout.addRow("Aprob Especial:", self.aprob_especial_label)
         self.layout.addRow("Descripcion:", self.descripcion_label)
+        self.layout.addWidget(self.btn_download_info)
 
     def set_course_info(self, course_info):
+        self.btn_download_info.show()
         self.sigla_label.setText(f"<h1>{course_info[c.SIGLA]}</h1>")
         self.name_label.setText(f"<h1>{course_info[c.NOMBRE]}</h1>")
         self.permite_retiro_label.setText(p.BOOL_TO_STR[course_info[c.PERMITE_RETIRO]])

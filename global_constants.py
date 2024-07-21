@@ -79,3 +79,5 @@ SHORT_FORM_TO_SIGLA = {
 YEARS = ["2022", "2023", "2024"]
 PERIODS = ["1", "2", "TAV"]
 PATH_YEAR_AND_PERIOD = "settings/year_and_period.txt"
+PATH_PROGRAMAS = "programas/"
+PATH_REQUISITOS = "requisitos/"
